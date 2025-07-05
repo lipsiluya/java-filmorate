@@ -24,9 +24,7 @@ public class UserControllerTest {
     @BeforeEach
     public void setup() {
         userController = new UserController();
-        mockMvc = MockMvcBuilders.standaloneSetup(userController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).setControllerAdvice(new GlobalExceptionHandler()).build();
     }
 
     @Test
@@ -41,12 +39,7 @@ public class UserControllerTest {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").exists())
-                    .andExpect(jsonPath("$.name").value("Test User"));
+            mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(json)).andExpect(status().isCreated()).andExpect(jsonPath("$.id").exists()).andExpect(jsonPath("$.name").value("Test User"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -63,11 +56,7 @@ public class UserControllerTest {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Email не может быть пустым")));
+            mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(json)).andExpect(status().isBadRequest()).andExpect(content().string(containsString("Email не может быть пустым")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -84,11 +73,7 @@ public class UserControllerTest {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Логин не может быть пустым")));
+            mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(json)).andExpect(status().isBadRequest()).andExpect(content().string(containsString("Логин не может быть пустым")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,11 +90,7 @@ public class UserControllerTest {
                 """, LocalDate.now().plusDays(1));
 
         try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
+            mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(json)).andExpect(status().isBadRequest()).andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
