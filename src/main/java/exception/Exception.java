@@ -6,10 +6,6 @@ package exception;
  */
 public class Exception {
 
-    /**
-     * Исключение, выбрасывается, если не выполнены условия
-     * для создания или изменения данных.
-     */
     public static class ConditionsNotMetException extends RuntimeException {
         public ConditionsNotMetException(String message) {
             super(message);
