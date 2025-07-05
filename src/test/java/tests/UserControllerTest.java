@@ -17,23 +17,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class UserControllerTest
-{
+public class UserControllerTest {
     private MockMvc mockMvc;
     private UserController userController;
 
     @BeforeEach
-    public void setup()
-    {
+    public void setup() {
         userController = new UserController();
         mockMvc = MockMvcBuilders.standaloneSetup(userController)
-                .setControllerAdvice(new GlobalExceptionHandler())  // Подключаем обработчик исключений
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
     @Test
-    public void addUser_ValidUser_Success() throws Exception
-    {
+    public void addUser_ValidUser_Success() throws Exception {
         String json = """
             {
                 "email": "test@example.com",
@@ -52,8 +49,7 @@ public class UserControllerTest
     }
 
     @Test
-    public void addUser_EmptyEmail_BadRequest() throws Exception
-    {
+    public void addUser_EmptyEmail_BadRequest() throws Exception {
         String json = """
             {
                 "email": "",
@@ -70,8 +66,7 @@ public class UserControllerTest
     }
 
     @Test
-    public void addUser_InvalidLogin_BadRequest() throws Exception
-    {
+    public void addUser_InvalidLogin_BadRequest() throws Exception {
         String json = """
             {
                 "email": "test@example.com",
@@ -88,8 +83,7 @@ public class UserControllerTest
     }
 
     @Test
-    public void addUser_BirthdayInFuture_BadRequest() throws Exception
-    {
+    public void addUser_BirthdayInFuture_BadRequest() throws Exception {
         String json = String.format("""
             {
                 "email": "test@example.com",
@@ -106,8 +100,7 @@ public class UserControllerTest
     }
 
     @Test
-    public void validateUserMethod_ShouldThrowValidationException()
-    {
+    public void validateUserMethod_ShouldThrowValidationException() {
         User user = new User();
         user.setEmail("");
         user.setLogin("login");
