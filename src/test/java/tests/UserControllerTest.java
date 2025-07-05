@@ -31,14 +31,12 @@ public class UserControllerTest {
 
     @Test
     public void addUser_ValidUser_Success() {
-        String json = """
-                {
-                    "email": "test@example.com",
-                    "login": "testuser",
-                    "name": "Test User",
-                    "birthday": "1990-01-01"
-                }
-                """;
+        String json = "{\n" +
+                "  \"email\": \"test@example.com\",\n" +
+                "  \"login\": \"testuser\",\n" +
+                "  \"name\": \"Test User\",\n" +
+                "  \"birthday\": \"1990-01-01\"\n" +
+                "}";
 
         try {
             mockMvc.perform(post("/users")
@@ -54,13 +52,11 @@ public class UserControllerTest {
 
     @Test
     public void addUser_EmptyEmail_BadRequest() {
-        String json = """
-                {
-                    "email": "",
-                    "login": "testuser",
-                    "birthday": "1990-01-01"
-                }
-                """;
+        String json = "{\n" +
+                "  \"email\": \"\",\n" +
+                "  \"login\": \"testuser\",\n" +
+                "  \"birthday\": \"1990-01-01\"\n" +
+                "}";
 
         try {
             mockMvc.perform(post("/users")
@@ -75,13 +71,11 @@ public class UserControllerTest {
 
     @Test
     public void addUser_InvalidLogin_BadRequest() {
-        String json = """
-                {
-                    "email": "test@example.com",
-                    "login": "invalid login",
-                    "birthday": "1990-01-01"
-                }
-                """;
+        String json = "{\n" +
+                "  \"email\": \"test@example.com\",\n" +
+                "  \"login\": \"invalid login\",\n" +
+                "  \"birthday\": \"1990-01-01\"\n" +
+                "}";
 
         try {
             mockMvc.perform(post("/users")
@@ -96,13 +90,11 @@ public class UserControllerTest {
 
     @Test
     public void addUser_BirthdayInFuture_BadRequest() {
-        String json = String.format("""
-                {
-                    "email": "test@example.com",
-                    "login": "testuser",
-                    "birthday": "%s"
-                }
-                """, LocalDate.now().plusDays(1));
+        String json = "{\n" +
+                "  \"email\": \"test@example.com\",\n" +
+                "  \"login\": \"testuser\",\n" +
+                "  \"birthday\": \"" + LocalDate.now().plusDays(1) + "\"\n" +
+                "}";
 
         try {
             mockMvc.perform(post("/users")
