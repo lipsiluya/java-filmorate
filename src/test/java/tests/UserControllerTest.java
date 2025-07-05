@@ -30,73 +30,89 @@ public class UserControllerTest {
     }
 
     @Test
-    public void addUser_ValidUser_Success() throws Exception {
+    public void addUser_ValidUser_Success() {
         String json = """
-            {
-                "email": "test@example.com",
-                "login": "testuser",
-                "name": "Test User",
-                "birthday": "1990-01-01"
-            }
-            """;
+                {
+                    "email": "test@example.com",
+                    "login": "testuser",
+                    "name": "Test User",
+                    "birthday": "1990-01-01"
+                }
+                """;
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value("Test User"));
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.id").exists())
+                    .andExpect(jsonPath("$.name").value("Test User"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void addUser_EmptyEmail_BadRequest() throws Exception {
+    public void addUser_EmptyEmail_BadRequest() {
         String json = """
-            {
-                "email": "",
-                "login": "testuser",
-                "birthday": "1990-01-01"
-            }
-            """;
+                {
+                    "email": "",
+                    "login": "testuser",
+                    "birthday": "1990-01-01"
+                }
+                """;
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Email не может быть пустым")));
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(containsString("Email не может быть пустым")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void addUser_InvalidLogin_BadRequest() throws Exception {
+    public void addUser_InvalidLogin_BadRequest() {
         String json = """
-            {
-                "email": "test@example.com",
-                "login": "invalid login",
-                "birthday": "1990-01-01"
-            }
-            """;
+                {
+                    "email": "test@example.com",
+                    "login": "invalid login",
+                    "birthday": "1990-01-01"
+                }
+                """;
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Логин не может быть пустым")));
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(containsString("Логин не может быть пустым")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void addUser_BirthdayInFuture_BadRequest() throws Exception {
+    public void addUser_BirthdayInFuture_BadRequest() {
         String json = String.format("""
-            {
-                "email": "test@example.com",
-                "login": "testuser",
-                "birthday": "%s"
-            }
-            """, LocalDate.now().plusDays(1));
+                {
+                    "email": "test@example.com",
+                    "login": "testuser",
+                    "birthday": "%s"
+                }
+                """, LocalDate.now().plusDays(1));
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
