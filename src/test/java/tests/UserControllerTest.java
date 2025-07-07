@@ -1,11 +1,12 @@
-package com.example.filmorate;
+package tests;
 
+import com.example.filmorate.UserController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.User;
+import org.junit.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.testng.annotations.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
