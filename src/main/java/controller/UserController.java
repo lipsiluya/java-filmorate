@@ -3,7 +3,7 @@ package controller;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import model.User;
 
 import java.util.*;
 
