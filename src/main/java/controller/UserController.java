@@ -1,9 +1,9 @@
 package controller;
 
 import jakarta.validation.Valid;
+import model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import model.User;
 
 import java.util.*;
 
@@ -12,21 +12,18 @@ import java.util.*;
 public class UserController {
 
     private final Map<Long, User> users = new HashMap<>();
-    private long nextId = 1;
+    private long idCounter = 1;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@Valid @RequestBody User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(nextId++);
+        user.setId(idCounter++);
         users.put(user.getId(), user);
         return user;
     }
 
     @GetMapping
-    public Collection<User> getUsers() {
-        return users.values();
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 }
