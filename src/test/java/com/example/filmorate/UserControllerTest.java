@@ -1,18 +1,17 @@
-package tests;
+package com.example.filmorate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import controller.UserController;
 import model.User;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testng.annotations.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
@@ -30,11 +29,11 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(1990, 1, 1));
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Email не может быть пустым")));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string(org.hamcrest.Matchers.containsString("Email не может быть пустым")));
     }
 
     @Test
@@ -44,10 +43,10 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Дата рождения не может быть в будущем")));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().string(org.hamcrest.Matchers.containsString("Дата рождения не может быть в будущем")));
     }
 }
