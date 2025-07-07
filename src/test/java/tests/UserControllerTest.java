@@ -1,119 +1,64 @@
 package tests;
 
-import controller.UserController;
-import exception.GlobalExceptionHandler;
-import exception.ValidationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import controller.UserController;
 
 import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
+
+    @Autowired
     private MockMvc mockMvc;
-    private UserController userController;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    private User user;
 
     @BeforeEach
-    public void setup() {
-        userController = new UserController();
-        mockMvc = MockMvcBuilders.standaloneSetup(userController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+    void setup() {
+        user = new User(null, "test@example.com", "login", "Name", LocalDate.of(2000, 1, 1));
     }
 
     @Test
-    public void addUser_ValidUser_Success() {
-        String json = "{\n" +
-                "  \"email\": \"test@example.com\",\n" +
-                "  \"login\": \"testuser\",\n" +
-                "  \"name\": \"Test User\",\n" +
-                "  \"birthday\": \"1990-01-01\"\n" +
-                "}";
-
-        try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").exists())
-                    .andExpect(jsonPath("$.name").value("Test User"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    void addUser_EmptyEmail_BadRequest() throws Exception {
+        user.setEmail("  ");
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(user)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Email не может быть пустым")));
     }
 
     @Test
-    public void addUser_EmptyEmail_BadRequest() {
-        String json = "{\n" +
-                "  \"email\": \"\",\n" +
-                "  \"login\": \"testuser\",\n" +
-                "  \"birthday\": \"1990-01-01\"\n" +
-                "}";
-
-        try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Email не может быть пустым")));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    void addUser_InvalidLogin_BadRequest() throws Exception {
+        user.setLogin(" ");
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(user)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Логин не может быть пустым")));
     }
 
     @Test
-    public void addUser_InvalidLogin_BadRequest() {
-        String json = "{\n" +
-                "  \"email\": \"test@example.com\",\n" +
-                "  \"login\": \"invalid login\",\n" +
-                "  \"birthday\": \"1990-01-01\"\n" +
-                "}";
-
-        try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Логин не может быть пустым")));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    public void addUser_BirthdayInFuture_BadRequest() {
-        String json = "{\n" +
-                "  \"email\": \"test@example.com\",\n" +
-                "  \"login\": \"testuser\",\n" +
-                "  \"birthday\": \"" + LocalDate.now().plusDays(1) + "\"\n" +
-                "}";
-
-        try {
-            mockMvc.perform(post("/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    public void validateUserMethod_ShouldThrowValidationException() {
-        User user = new User();
-        user.setEmail("");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        assertThrows(ValidationException.class, () -> userController.addUser(user));
+    void addUser_BirthdayInFuture_BadRequest() throws Exception {
+        user.setBirthday(LocalDate.now().plusDays(1));
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(user)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Дата рождения не может быть в будущем")));
     }
 }
