@@ -29,4 +29,18 @@ public class UserController {
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
+
+    @PutMapping
+    public User updateUser(@Valid @RequestBody User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new NoSuchElementException("User with ID " + user.getId() + " not found");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+
+        users.put(user.getId(), user);
+        return user;
+    }
 }
