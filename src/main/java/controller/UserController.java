@@ -1,4 +1,4 @@
-package com.example.filmorate;
+package controller;
 
 import jakarta.validation.Valid;
 import model.User;
