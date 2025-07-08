@@ -1,6 +1,6 @@
 package tests;
 
-import com.example.filmorate.UserController;
+import controller.UserController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.User;
 import org.junit.Test;

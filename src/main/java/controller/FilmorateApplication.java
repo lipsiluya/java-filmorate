@@ -1,8 +1,7 @@
-package com.example.filmorate;
+package controller;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 
 @SpringBootApplication(scanBasePackages = {"com.example.filmorate", "exception", "model"})
 public class FilmorateApplication {
