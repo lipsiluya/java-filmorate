@@ -1,6 +1,7 @@
 package tests;
 
 import com.example.FilmorateApplication;
+import com.example.controller.FilmController;
 import com.example.model.Film;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,7 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -27,15 +30,32 @@ class FilmControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private FilmController filmController;
+
     private Film validFilm;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         validFilm = new Film();
         validFilm.setName("Inception");
         validFilm.setDescription("A film by Christopher Nolan");
         validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
         validFilm.setDuration(148);
+
+        // Очистка фильмов и сброс счетчика id
+        clearFilmsStorage();
+    }
+
+    private void clearFilmsStorage() throws Exception {
+        Field filmsField = FilmController.class.getDeclaredField("films");
+        filmsField.setAccessible(true);
+        Map<?, ?> films = (Map<?, ?>) filmsField.get(filmController);
+        films.clear();
+
+        Field nextIdField = FilmController.class.getDeclaredField("nextId");
+        nextIdField.setAccessible(true);
+        nextIdField.setInt(filmController, 1);
     }
 
     @Test
@@ -91,8 +111,8 @@ class FilmControllerTests {
         validFilm.setId(999);
 
         mockMvc.perform(put("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validFilm)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error").exists());
     }

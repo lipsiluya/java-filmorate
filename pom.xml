@@ -113,7 +113,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
                 <configuration>
-                    <mainClass>main.java.com.example.controller.FilmorateApplication</mainClass>
+                    <mainClass>com.example.FilmorateApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

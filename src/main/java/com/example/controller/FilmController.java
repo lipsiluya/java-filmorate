@@ -8,12 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @RestController
+@RequestMapping("/films")  // базовый путь для всех методов контроллера
 public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
