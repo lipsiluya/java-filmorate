@@ -1,4 +1,4 @@
-package main.java.com.example.model;
+package com.example.model;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;

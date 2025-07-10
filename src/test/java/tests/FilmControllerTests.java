@@ -1,6 +1,7 @@
 package tests;
 
 import com.example.controller.FilmorateApplication;
+import com.example.model.Film;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FilmorateApplication.class)
 @AutoConfigureMockMvc
-class FilmControllerTest {
+class FilmControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -26,11 +27,11 @@ class FilmControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private main.java.com.example.model.Film validFilm;
+    private Film validFilm;
 
     @BeforeEach
     void setUp() {
-        validFilm = new main.java.com.example.model.Film();
+        validFilm = new Film();
         validFilm.setName("Inception");
         validFilm.setDescription("A film by Christopher Nolan");
         validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
@@ -74,7 +75,7 @@ class FilmControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        main.java.com.example.model.Film createdFilm = objectMapper.readValue(response, main.java.com.example.model.Film.class);
+        Film createdFilm = objectMapper.readValue(response, Film.class);
         createdFilm.setName("Updated Title");
 
         // Обновим его
@@ -92,7 +93,7 @@ class FilmControllerTest {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validFilm)))
-                .andExpect(status().isInternalServerError()) // можно настроить кастомную ошибку и 404
+                .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error").exists());
     }
 }

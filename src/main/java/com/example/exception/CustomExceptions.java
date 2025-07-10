@@ -1,9 +1,5 @@
 package com.example.exception;
 
-/**
- * Класс, содержащий пользовательские исключения для приложения.
- * Переименован, чтобы не конфликтовать с java.lang.Exception
- */
 public class CustomExceptions {
 
     public static class ConditionsNotMetException extends RuntimeException {
