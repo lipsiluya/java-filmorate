@@ -1,10 +1,10 @@
-package exception;
-
+package com.example.exception;
 
 /**
- * Пользовательские исключения для приложения Catsgram.
+ * Класс, содержащий пользовательские исключения для приложения.
+ * Переименован, чтобы не конфликтовать с java.lang.Exception
  */
-public class Exception {
+public class CustomExceptions {
 
     public static class ConditionsNotMetException extends RuntimeException {
         public ConditionsNotMetException(String message) {
@@ -12,18 +12,12 @@ public class Exception {
         }
     }
 
-    /**
-     * Исключение, выбрасывается, если объект не найден.
-     */
     public static class NotFoundException extends RuntimeException {
         public NotFoundException(String message) {
             super(message);
         }
     }
 
-    /**
-     * Исключение, выбрасывается при попытке создать или обновить объект с уже существующими уникальными данными.
-     */
     public static class DuplicatedDataException extends RuntimeException {
         public DuplicatedDataException(String message) {
             super(message);

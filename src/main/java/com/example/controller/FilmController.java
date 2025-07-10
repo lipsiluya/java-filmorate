@@ -1,18 +1,18 @@
 package com.example.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
-import model.Film;
+import main.java.com.example.model.Film;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import exception.ValidationException;
+
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
 public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
