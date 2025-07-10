@@ -1,6 +1,6 @@
 package tests;
 
-import com.example.controller.FilmorateApplication;
+import com.example.FilmorateApplication;
 import com.example.model.Film;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
