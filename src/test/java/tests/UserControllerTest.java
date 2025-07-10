@@ -2,7 +2,7 @@ package tests;
 
 import com.example.controller.UserController;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import model.User;
+import main.java.com.example.model.User;
 import org.junit.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;

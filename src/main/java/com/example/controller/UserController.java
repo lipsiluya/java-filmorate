@@ -1,7 +1,7 @@
 package com.example.controller;
 
 import jakarta.validation.Valid;
-import model.User;
+import main.java.com.example.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

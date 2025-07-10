@@ -1,4 +1,4 @@
-package model;
+package main.java.com.example.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
