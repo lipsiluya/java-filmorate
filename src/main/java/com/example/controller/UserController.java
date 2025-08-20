@@ -32,7 +32,6 @@ public class UserController {
         return userService.update(user);
     }
 
-    // --- Работа с друзьями ---
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         userService.addFriend(id, friendId);
