@@ -1,6 +1,5 @@
 package com.example.service;
 
-import com.example.exception.NotFoundException;
 import com.example.model.User;
 import com.example.storage.UserStorage;
 import lombok.RequiredArgsConstructor;
