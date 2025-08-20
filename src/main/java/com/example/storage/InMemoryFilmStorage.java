@@ -1,13 +1,14 @@
 package com.example.storage;
 
-import com.example.exception.NotFoundException;
 import com.example.model.Film;
+import com.example.exception.NotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+
     private final Map<Integer, Film> films = new HashMap<>();
     private int nextId = 1;
 
@@ -21,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
+            throw new NotFoundException("Фильм не найден");
         }
         films.put(film.getId(), film);
         return film;
@@ -29,10 +30,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getById(int id) {
-        if (!films.containsKey(id)) {
-            throw new NotFoundException("Фильм с id " + id + " не найден");
+        Film film = films.get(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм не найден");
         }
-        return films.get(id);
+        return film;
     }
 
     @Override
