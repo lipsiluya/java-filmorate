@@ -1,0 +1,37 @@
+name: Java CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Клонируем репозиторий
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Устанавливаем JDK 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+
+      # 3️⃣ Собираем проект без тестов
+      - name: Build project
+        run: mvn clean package -DskipTests
+
+      # 4️⃣ Запускаем Spring Boot приложение на фоне
+      - name: Start Spring Boot app
+        run: |
+          mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8080" &
+          # Ждем, пока порт 8080 станет доступен
+          timeout 60 bash -c 'until nc -z localhost 8080; do sleep 1; done'
+
+      # 5️⃣ Запускаем тесты
+      - name: Run tests
+        run: mvn test
