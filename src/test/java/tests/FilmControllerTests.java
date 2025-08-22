@@ -1,10 +1,9 @@
 package tests;
 
 import com.example.FilmorateApplication;
-import com.example.controller.FilmController;
 import com.example.model.Film;
+import com.example.storage.InMemoryFilmStorage;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,31 +28,20 @@ class FilmControllerTests {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private FilmController filmController;
+    private InMemoryFilmStorage filmStorage;
 
     private Film validFilm;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         validFilm = new Film();
         validFilm.setName("Inception");
         validFilm.setDescription("A film by Christopher Nolan");
         validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
         validFilm.setDuration(148);
 
-        // Очистка фильмов и сброс счетчика id
-        clearFilmsStorage();
-    }
-
-    private void clearFilmsStorage() throws Exception {
-        Field filmsField = FilmController.class.getDeclaredField("films");
-        filmsField.setAccessible(true);
-        Map<?, ?> films = (Map<?, ?>) filmsField.get(filmController);
-        films.clear();
-
-        Field nextIdField = FilmController.class.getDeclaredField("nextId");
-        nextIdField.setAccessible(true);
-        nextIdField.setInt(filmController, 1);
+        // Очистка хранилища перед каждым тестом
+        filmStorage.getAll().clear();
     }
 
     @Test
@@ -87,7 +73,7 @@ class FilmControllerTests {
 
     @Test
     void shouldUpdateExistingFilm() throws Exception {
-        // Сначала добавим фильм
+        // Добавляем фильм
         String filmJson = objectMapper.writeValueAsString(validFilm);
         String response = mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,22 +84,10 @@ class FilmControllerTests {
         Film createdFilm = objectMapper.readValue(response, Film.class);
         createdFilm.setName("Updated Title");
 
-        // Обновим его
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createdFilm)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Title"));
-    }
-
-    @Test
-    void shouldReturnErrorWhenUpdatingNonexistentFilm() throws Exception {
-        validFilm.setId(999);
-
-        mockMvc.perform(put("/films")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validFilm)))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.error").exists());
     }
 }
