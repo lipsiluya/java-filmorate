@@ -1,13 +1,13 @@
-package com.example.storage;
+package ru.yandex.practicum.filmorate.storage;
 
-import com.example.model.Film;
-import com.example.exception.NotFoundException;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+
 
     private final Map<Integer, Film> films = new HashMap<>();
     private int nextId = 1;
@@ -22,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NoSuchElementException("Фильм с id=" + film.getId() + " не найден");
         }
         films.put(film.getId(), film);
         return film;
@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film getById(int id) {
         Film film = films.get(id);
         if (film == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NoSuchElementException("Фильм с id=" + id + " не найден");
         }
         return film;
     }

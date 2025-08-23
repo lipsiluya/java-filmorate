@@ -1,4 +1,4 @@
-package com.example;
+package ru.yandex.practicum.filmorate;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
