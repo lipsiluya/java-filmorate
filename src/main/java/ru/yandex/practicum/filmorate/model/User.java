@@ -1,29 +1,29 @@
-package com.example.model;
+package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private Long id;
 
+    @Email(message = "Email должен быть корректным")
     @NotBlank(message = "Email не может быть пустым")
-    @Email(message = "Email должен быть валидным")
     private String email;
 
     @NotBlank(message = "Логин не может быть пустым")
-    @Pattern(regexp = "\\S+", message = "Логин не должен содержать пробелы")
     private String login;
 
     private String name;
 
-    @NotNull(message = "Дата рождения не может быть пустой")
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
 }
