@@ -3,39 +3,36 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
-
+public class InMemoryFilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long nextId = 1;
 
-    @Override
+    public Collection<Film> getAll() {
+        return films.values();
+    }
+
     public Film add(Film film) {
         film.setId(nextId++);
         films.put(film.getId(), film);
         return film;
     }
 
-    @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            return null; // возвращаем null, чтобы сервис обработал
+            throw new NoSuchElementException("Фильм не найден");
         }
         films.put(film.getId(), film);
         return film;
     }
 
-    @Override
-    public Film getById(Long id) {
-        return films.get(id); // возвращаем null, чтобы сервис обработал
-    }
-
-    @Override
-    public Collection<Film> getAll() {
-        return films.values();
+    public Film getById(long id) {
+        Film film = films.get(id);
+        if (film == null) {
+            throw new NoSuchElementException("Фильм не найден");
+        }
+        return film;
     }
 }
