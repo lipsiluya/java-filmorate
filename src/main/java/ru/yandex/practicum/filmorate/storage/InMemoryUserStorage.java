@@ -30,7 +30,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User getById(Long id) {
         return users.get(id);
     }
-//aaa
+
     @Override
     public Collection<User> getAll() {
         return users.values();
