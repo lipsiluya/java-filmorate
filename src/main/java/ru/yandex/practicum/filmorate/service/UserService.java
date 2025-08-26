@@ -58,15 +58,23 @@ public class UserService {
 
     public void addFriend(long userId, long friendId) {
         User user = getById(userId);
-        getById(friendId); // проверка существования
+        User friend = getById(friendId); // проверка существования
+
         user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+
         userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getById(userId);
-        getById(friendId); // проверка существования
+        User friend = getById(friendId);
+
         user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+
         userStorage.update(user);
+        userStorage.update(friend);
     }
 }
