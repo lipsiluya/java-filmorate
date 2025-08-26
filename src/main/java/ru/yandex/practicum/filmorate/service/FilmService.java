@@ -15,6 +15,7 @@ import java.util.Comparator;
 public class FilmService {
 
     private final InMemoryFilmStorage storage;
+    private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
 
     public Collection<Film> getAll() {
         return storage.getAll();
@@ -60,6 +61,9 @@ public class FilmService {
         }
         if (film.getReleaseDate() == null) {
             throw new ValidationException("Дата релиза не может быть пустой");
+        }
+        if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
+            throw new ValidationException("Дата релиза не может быть раньше 28.12.1895");
         }
         if (film.getReleaseDate().isAfter(LocalDate.now())) {
             throw new ValidationException("Дата релиза не может быть в будущем");
