@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -20,20 +22,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new NoSuchElementException("Пользователь с id=" + user.getId() + " не найден");
-        }
+        if (!users.containsKey(user.getId()))
+            return null; // сервис обработает
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
-    public User getById(Long id) { // 👈 заменили long → Long
-        User user = users.get(id);
-        if (user == null) {
-            throw new NoSuchElementException("Пользователь с id=" + id + " не найден");
-        }
-        return user;
+    public User getById(Long id) {
+        return users.get(id); // возвращаем null
     }
 
     @Override

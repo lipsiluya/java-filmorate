@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -21,7 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new NoSuchElementException("Фильм с id=" + film.getId() + " не найден");
+            return null; // возвращаем null, чтобы сервис обработал
         }
         films.put(film.getId(), film);
         return film;
@@ -29,11 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getById(Long id) {
-        Film film = films.get(id);
-        if (film == null) {
-            throw new NoSuchElementException("Фильм с id=" + id + " не найден");
-        }
-        return film;
+        return films.get(id); // возвращаем null, чтобы сервис обработал
     }
 
     @Override
