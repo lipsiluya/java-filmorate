@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.GlobalExceptionHandler;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import jakarta.validation.Valid;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
+    private final UserService userService;
 
     @GetMapping
     public Collection<Film> getAll() {
@@ -36,17 +38,19 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable int id) {
+    public Film getFilmById(@PathVariable long id) {
         return filmService.getById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable int id, @PathVariable long userId) {
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        userService.getById(userId); // проверка существования пользователя
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable int id, @PathVariable long userId) {
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
+        userService.getById(userId); // проверка существования пользователя
         filmService.removeLike(id, userId);
     }
 
