@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
+
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -28,34 +29,37 @@ public class FilmService {
 
     public Film update(Film film) {
         validate(film);
+        if (!filmExists(film.getId())) {
+            throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
+        }
         return filmStorage.update(film);
     }
 
-    public Film getById(Long id) { // 👈 заменили int → Long
-        Film f = filmStorage.getById(id);
-        if (f == null) {
-            throw new NotFoundException("Фильм " + id + " не найден");
+    public Film getById(long id) {
+        Film film = filmStorage.getById(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
         }
-        return f;
+        return film;
     }
 
     public Collection<Film> getAll() {
         return filmStorage.getAll();
     }
 
-    public void addLike(Long filmId, Long userId) { // 👈 оба параметра Long
-        Film film = getById(filmId); // 404 если нет фильма
-        if (userStorage.getById(userId) == null) { // 404 если нет пользователя
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+    public void addLike(long filmId, long userId) {
+        Film film = getById(filmId);
+        if (!userExists(userId)) {
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
         film.getLikes().add(userId);
         filmStorage.update(film);
     }
 
-    public void removeLike(Long filmId, Long userId) { // 👈 оба параметра Long
+    public void removeLike(long filmId, long userId) {
         Film film = getById(filmId);
-        if (userStorage.getById(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+        if (!userExists(userId)) {
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
         film.getLikes().remove(userId);
         filmStorage.update(film);
@@ -71,6 +75,24 @@ public class FilmService {
     private void validate(Film film) {
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
+        }
+    }
+
+    private boolean filmExists(long id) {
+        try {
+            filmStorage.getById(id);
+            return true;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean userExists(long id) {
+        try {
+            userStorage.getById(id);
+            return true;
+        } catch (NotFoundException e) {
+            return false;
         }
     }
 }
