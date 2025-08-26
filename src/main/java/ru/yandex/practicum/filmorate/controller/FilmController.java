@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.GlobalExceptionHandler;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -12,6 +14,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Import(GlobalExceptionHandler.class)
 public class FilmController {
 
     private final FilmService filmService;

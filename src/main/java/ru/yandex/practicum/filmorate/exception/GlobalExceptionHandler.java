@@ -9,15 +9,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 Not Found
+    // 404 Not Found для NotFoundException
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotFound(NotFoundException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    // 404 Not Found для NoSuchElementException (из storage)
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNoSuchElement(NoSuchElementException e) {
         return Map.of("error", e.getMessage());
     }
 
@@ -31,15 +39,16 @@ public class GlobalExceptionHandler {
     // 400 Bean validation errors (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult().getFieldErrors().stream()
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult().getFieldErrors()
+                .stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         FieldError::getDefaultMessage
                 ));
     }
 
-    // 500 Internal Server Error для неожиданных ошибок
+    // 500 Internal Server Error для всех неожиданных исключений
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleOtherExceptions(Exception e) {
