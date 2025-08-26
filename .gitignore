@@ -1,13 +1,13 @@
 # Maven
-/target/
-!.mvn/wrapper/maven-wrapper.jar
+target/
 
-# IntelliJ IDEA
+# IDE
 .idea/
 *.iml
 
-# VS Code
-.vscode/
-
-# MacOS системные файлы
+# Mac
 .DS_Store
+
+# Java / Spring
+*.class
+*.jar
