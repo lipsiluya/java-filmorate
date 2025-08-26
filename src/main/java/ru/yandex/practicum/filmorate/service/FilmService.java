@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -50,7 +49,7 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         Film film = getById(filmId);
         if (userStorage.getById(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
         film.getLikes().add(userId);
         filmStorage.update(film);
@@ -59,7 +58,7 @@ public class FilmService {
     public void removeLike(long filmId, long userId) {
         Film film = getById(filmId);
         if (userStorage.getById(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
         film.getLikes().remove(userId);
         filmStorage.update(film);
@@ -73,17 +72,17 @@ public class FilmService {
     }
 
     private void validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
-            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
+            throw new IllegalArgumentException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new IllegalArgumentException("Название фильма не может быть пустым");
         }
         if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность должна быть положительной");
+            throw new IllegalArgumentException("Продолжительность должна быть положительной");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new IllegalArgumentException("Максимальная длина описания — 200 символов");
         }
     }
 }
