@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -14,21 +13,32 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserStorage userStorage;
 
-    public User add(@Valid User user) {
+    public User add(User user) {
+        if (user.getFriends() == null) {
+            user.setFriends(Set.of());
+        }
         return userStorage.add(user);
     }
 
-    public User update(@Valid User user) {
+    public User update(User user) {
         User existing = userStorage.getById(user.getId());
-        if (existing == null) throw new NotFoundException("Пользователь " + user.getId() + " не найден");
+        if (existing == null) {
+            throw new NotFoundException("Пользователь " + user.getId() + " не найден");
+        }
+        if (user.getFriends() == null) {
+            user.setFriends(Set.of());
+        }
         return userStorage.update(user);
     }
 
     public User getById(long id) {
         User user = userStorage.getById(id);
-        if (user == null) throw new NotFoundException("Пользователь " + id + " не найден");
+        if (user == null) {
+            throw new NotFoundException("Пользователь " + id + " не найден");
+        }
         return user;
     }
 
@@ -59,22 +69,14 @@ public class UserService {
     public void addFriend(long userId, long friendId) {
         User user = getById(userId);
         User friend = getById(friendId); // проверка существования
-
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
-
+        user.getFriends().add(friend.getId());
         userStorage.update(user);
-        userStorage.update(friend);
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getById(userId);
-        User friend = getById(friendId);
-
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-
+        User friend = getById(friendId); // проверка существования
+        user.getFriends().remove(friend.getId());
         userStorage.update(user);
-        userStorage.update(friend);
     }
 }
