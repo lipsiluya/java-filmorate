@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,41 +18,38 @@ public class FilmController {
 
     private final FilmService filmService;
 
-    // Получение всех фильмов
+    @PostMapping
+    public ResponseEntity<Film> create(@Valid @RequestBody Film film) {
+        Film created = filmService.add(film);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<Film> update(@Valid @RequestBody Film film) {
+        Film updated = filmService.update(film);
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping
     public Collection<Film> getAll() {
         return filmService.getAll();
     }
 
-    // Добавление фильма — статус 201 Created
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Film add(@Valid @RequestBody Film film) {
-        return filmService.add(film);
+    @GetMapping("/{id}")
+    public Film getById(@PathVariable long id) {
+        return filmService.getById(id);
     }
 
-    // Обновление фильма — статус 200 OK
-    @PutMapping
-    @ResponseStatus(HttpStatus.OK)
-    public Film update(@Valid @RequestBody Film film) {
-        return filmService.update(film);
-    }
-
-    // Добавление лайка
     @PutMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
         filmService.addLike(id, userId);
     }
 
-    // Удаление лайка
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
         filmService.removeLike(id, userId);
     }
 
-    // Популярные фильмы
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
         return filmService.getPopular(count);
