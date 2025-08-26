@@ -59,7 +59,10 @@ public class FilmService {
         Film film = getById(filmId);
         User user = userStorage.getById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+            throw new ValidationException("Пользователь " + userId + " не существует");
+        }
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
         }
         film.getLikes().add(userId);
         filmStorage.update(film);
@@ -69,9 +72,11 @@ public class FilmService {
         Film film = getById(filmId);
         User user = userStorage.getById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
+            throw new ValidationException("Пользователь " + userId + " не существует");
         }
-        film.getLikes().remove(userId);
+        if (film.getLikes() != null) {
+            film.getLikes().remove(userId);
+        }
         filmStorage.update(film);
     }
 

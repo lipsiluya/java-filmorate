@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -59,7 +60,7 @@ public class UserService {
         User user1 = getById(userId);
         User user2 = getById(otherUserId);
 
-        Set<Long> commonIds = new HashSet<>(user1.getFriends()); // копия для безопасного retainAll
+        Set<Long> commonIds = new HashSet<>(user1.getFriends());
         commonIds.retainAll(user2.getFriends());
 
         return commonIds.stream()
@@ -68,16 +69,30 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
+        if (userId == friendId) {
+            throw new ValidationException("Нельзя добавить себя в друзья");
+        }
         User user = getById(userId);
-        User friend = getById(friendId); // проверка существования
+        User friend = userStorage.getById(friendId);
+        if (friend == null) {
+            throw new ValidationException("Пользователь " + friendId + " не существует");
+        }
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
         user.getFriends().add(friend.getId());
         userStorage.update(user);
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getById(userId);
-        User friend = getById(friendId); // проверка существования
-        user.getFriends().remove(friend.getId());
+        User friend = userStorage.getById(friendId);
+        if (friend == null) {
+            throw new ValidationException("Пользователь " + friendId + " не существует");
+        }
+        if (user.getFriends() != null) {
+            user.getFriends().remove(friend.getId());
+        }
         userStorage.update(user);
     }
 }
