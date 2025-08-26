@@ -25,29 +25,20 @@ public class FilmService {
 
     public Film add(Film film) {
         validateFilm(film);
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
-        }
+        if (film.getLikes() == null) film.setLikes(new HashSet<>());
         return filmStorage.add(film);
     }
 
     public Film update(Film film) {
-        Film existing = filmStorage.getById(film.getId());
-        if (existing == null) {
-            throw new NotFoundException("Фильм " + film.getId() + " не найден");
-        }
+        Film existing = getById(film.getId());
         validateFilm(film);
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
-        }
+        if (film.getLikes() == null) film.setLikes(new HashSet<>());
         return filmStorage.update(film);
     }
 
     public Film getById(long id) {
         Film film = filmStorage.getById(id);
-        if (film == null) {
-            throw new NotFoundException("Фильм " + id + " не найден");
-        }
+        if (film == null) throw new NotFoundException("Фильм " + id + " не найден");
         return film;
     }
 
@@ -58,12 +49,8 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         Film film = getById(filmId);
         User user = userStorage.getById(userId);
-        if (user == null) {
-            throw new ValidationException("Пользователь " + userId + " не существует");
-        }
-        if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
-        }
+        if (user == null) throw new NotFoundException("Пользователь " + userId + " не найден");
+        if (film.getLikes() == null) film.setLikes(new HashSet<>());
         film.getLikes().add(userId);
         filmStorage.update(film);
     }
@@ -71,12 +58,8 @@ public class FilmService {
     public void removeLike(long filmId, long userId) {
         Film film = getById(filmId);
         User user = userStorage.getById(userId);
-        if (user == null) {
-            throw new ValidationException("Пользователь " + userId + " не существует");
-        }
-        if (film.getLikes() != null) {
-            film.getLikes().remove(userId);
-        }
+        if (user == null) throw new NotFoundException("Пользователь " + userId + " не найден");
+        if (film.getLikes() != null) film.getLikes().remove(userId);
         filmStorage.update(film);
     }
 
@@ -88,17 +71,13 @@ public class FilmService {
     }
 
     private void validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
+        if (film.getName() == null || film.getName().isBlank())
             throw new ValidationException("Название фильма не может быть пустым");
-        }
-        if (film.getReleaseDate() == null) {
+        if (film.getReleaseDate() == null)
             throw new ValidationException("Дата релиза не может быть пустой");
-        }
-        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+        if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY))
             throw new ValidationException("Дата релиза не может быть раньше 28.12.1895");
-        }
-        if (film.getDuration() <= 0) {
+        if (film.getDuration() <= 0)
             throw new ValidationException("Продолжительность должна быть положительной");
-        }
     }
 }
