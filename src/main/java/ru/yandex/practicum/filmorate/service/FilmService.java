@@ -29,7 +29,7 @@ public class FilmService {
 
     public Film update(Film film) {
         validate(film);
-        if (!filmExists(film.getId())) {
+        if (filmStorage.getById(film.getId()) == null) {
             throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
         }
         return filmStorage.update(film);
@@ -49,8 +49,8 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = getById(filmId);
-        if (!userExists(userId)) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
+        if (userStorage.getById(userId) == null) {
+            throw new NotFoundException("Пользователь " + userId + " не найден");
         }
         film.getLikes().add(userId);
         filmStorage.update(film);
@@ -58,8 +58,8 @@ public class FilmService {
 
     public void removeLike(long filmId, long userId) {
         Film film = getById(filmId);
-        if (!userExists(userId)) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
+        if (userStorage.getById(userId) == null) {
+            throw new NotFoundException("Пользователь " + userId + " не найден");
         }
         film.getLikes().remove(userId);
         filmStorage.update(film);
@@ -73,26 +73,17 @@ public class FilmService {
     }
 
     private void validate(Film film) {
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Название фильма не может быть пустым");
+        }
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
-    }
-
-    private boolean filmExists(long id) {
-        try {
-            filmStorage.getById(id);
-            return true;
-        } catch (NotFoundException e) {
-            return false;
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ValidationException("Максимальная длина описания — 200 символов");
         }
-    }
-
-    private boolean userExists(long id) {
-        try {
-            userStorage.getById(id);
-            return true;
-        } catch (NotFoundException e) {
-            return false;
+        if (film.getDuration() <= 0) {
+            throw new ValidationException("Продолжительность должна быть положительной");
         }
     }
 }
