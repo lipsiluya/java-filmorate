@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public class UserService {
 
     public User add(User user) {
         if (user.getFriends() == null) {
-            user.setFriends(Set.of());
+            user.setFriends(new HashSet<>());
         }
         return userStorage.add(user);
     }
@@ -29,7 +30,7 @@ public class UserService {
             throw new NotFoundException("Пользователь " + user.getId() + " не найден");
         }
         if (user.getFriends() == null) {
-            user.setFriends(Set.of());
+            user.setFriends(new HashSet<>());
         }
         return userStorage.update(user);
     }
@@ -58,7 +59,7 @@ public class UserService {
         User user1 = getById(userId);
         User user2 = getById(otherUserId);
 
-        Set<Long> commonIds = user1.getFriends();
+        Set<Long> commonIds = new HashSet<>(user1.getFriends()); // копия для безопасного retainAll
         commonIds.retainAll(user2.getFriends());
 
         return commonIds.stream()
