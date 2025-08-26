@@ -40,7 +40,6 @@ class FilmControllerTests {
         validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
         validFilm.setDuration(148);
 
-        // Очистка хранилища перед каждым тестом
         filmStorage.getAll().clear();
     }
 
@@ -68,16 +67,15 @@ class FilmControllerTests {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validFilm)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.name").value("Название фильма не может быть пустым"));
     }
 
     @Test
     void shouldUpdateExistingFilm() throws Exception {
-        // Добавляем фильм
-        String filmJson = objectMapper.writeValueAsString(validFilm);
         String response = mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(filmJson))
+                        .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 

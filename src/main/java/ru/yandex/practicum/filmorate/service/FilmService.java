@@ -28,19 +28,15 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        Film existing = filmStorage.getById(film.getId());
+        if (existing == null) throw new NotFoundException("Фильм " + film.getId() + " не найден");
         validate(film);
-        Film updated = filmStorage.update(film);
-        if (updated == null) {
-            throw new NotFoundException("Фильм " + film.getId() + " не найден");
-        }
-        return updated;
+        return filmStorage.update(film);
     }
 
     public Film getById(long id) {
         Film film = filmStorage.getById(id);
-        if (film == null) {
-            throw new NotFoundException("Фильм " + id + " не найден");
-        }
+        if (film == null) throw new NotFoundException("Фильм " + id + " не найден");
         return film;
     }
 
@@ -50,18 +46,14 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         Film film = getById(filmId);
-        if (userStorage.getById(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
-        }
+        userStorage.getById(userId); // проверка существования пользователя
         film.getLikes().add(userId);
         filmStorage.update(film);
     }
 
     public void removeLike(long filmId, long userId) {
         Film film = getById(filmId);
-        if (userStorage.getById(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " не найден");
-        }
+        userStorage.getById(userId);
         film.getLikes().remove(userId);
         filmStorage.update(film);
     }
