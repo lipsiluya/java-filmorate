@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private int id;
+    private Long id;
 
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
