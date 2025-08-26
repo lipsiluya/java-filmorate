@@ -8,9 +8,8 @@ import java.util.*;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int nextId = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private long nextId = 1;
 
     @Override
     public Film add(Film film) {
@@ -29,7 +28,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(int id) {
+    public Film getById(Long id) {
         Film film = films.get(id);
         if (film == null) {
             throw new NoSuchElementException("Фильм с id=" + id + " не найден");
