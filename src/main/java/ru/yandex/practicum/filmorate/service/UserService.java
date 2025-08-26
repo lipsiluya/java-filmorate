@@ -19,28 +19,19 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User add(User user) {
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
+        if (user.getFriends() == null) user.setFriends(new HashSet<>());
         return userStorage.add(user);
     }
 
     public User update(User user) {
-        User existing = userStorage.getById(user.getId());
-        if (existing == null) {
-            throw new NotFoundException("Пользователь " + user.getId() + " не найден");
-        }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
+        User existing = getById(user.getId());
+        if (user.getFriends() == null) user.setFriends(new HashSet<>());
         return userStorage.update(user);
     }
 
     public User getById(long id) {
         User user = userStorage.getById(id);
-        if (user == null) {
-            throw new NotFoundException("Пользователь " + id + " не найден");
-        }
+        if (user == null) throw new NotFoundException("Пользователь " + id + " не найден");
         return user;
     }
 
@@ -51,9 +42,7 @@ public class UserService {
     public Collection<User> getFriends(long userId) {
         User user = getById(userId);
         Set<Long> friendIds = user.getFriends();
-        return friendIds.stream()
-                .map(this::getById)
-                .collect(Collectors.toList());
+        return friendIds.stream().map(this::getById).collect(Collectors.toList());
     }
 
     public Collection<User> getCommonFriends(long userId, long otherUserId) {
@@ -62,37 +51,22 @@ public class UserService {
 
         Set<Long> commonIds = new HashSet<>(user1.getFriends());
         commonIds.retainAll(user2.getFriends());
-
-        return commonIds.stream()
-                .map(this::getById)
-                .collect(Collectors.toList());
+        return commonIds.stream().map(this::getById).collect(Collectors.toList());
     }
 
     public void addFriend(long userId, long friendId) {
-        if (userId == friendId) {
-            throw new ValidationException("Нельзя добавить себя в друзья");
-        }
+        if (userId == friendId) throw new ValidationException("Нельзя добавить себя в друзья");
         User user = getById(userId);
-        User friend = userStorage.getById(friendId);
-        if (friend == null) {
-            throw new ValidationException("Пользователь " + friendId + " не существует");
-        }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
-        user.getFriends().add(friend.getId());
+        getById(friendId); // проверка существования
+        if (user.getFriends() == null) user.setFriends(new HashSet<>());
+        user.getFriends().add(friendId);
         userStorage.update(user);
     }
 
     public void removeFriend(long userId, long friendId) {
         User user = getById(userId);
-        User friend = userStorage.getById(friendId);
-        if (friend == null) {
-            throw new ValidationException("Пользователь " + friendId + " не существует");
-        }
-        if (user.getFriends() != null) {
-            user.getFriends().remove(friend.getId());
-        }
+        getById(friendId); // проверка существования
+        if (user.getFriends() != null) user.getFriends().remove(friendId);
         userStorage.update(user);
     }
 }
