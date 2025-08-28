@@ -1,19 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.GlobalExceptionHandler;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import jakarta.validation.Valid;
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Validated
 @Import(GlobalExceptionHandler.class)
 public class UserController {
 
@@ -36,27 +39,30 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable long id) {
+    public User getUserById(@PathVariable @Positive long id) {
         return userService.getById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+    public void addFriend(@PathVariable @Positive long id,
+                          @PathVariable @Positive long friendId) {
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
+    public void removeFriend(@PathVariable @Positive long id,
+                             @PathVariable @Positive long friendId) {
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable long id) {
+    public Collection<User> getFriends(@PathVariable @Positive long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+    public Collection<User> getCommonFriends(@PathVariable @Positive long id,
+                                             @PathVariable @Positive long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }
