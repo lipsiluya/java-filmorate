@@ -27,4 +27,8 @@ public class Film {
     private int duration;
 
     private Set<Long> likes = new HashSet<>();
+
+    // ✅ Новые поля
+    private Set<String> genres = new HashSet<>();
+    private MpaRating mpaRating;
 }
