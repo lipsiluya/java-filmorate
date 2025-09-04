@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
@@ -36,35 +37,57 @@ public class UserService {
         return storage.getById(id);
     }
 
+    /**
+     * Добавление друга:
+     * - у отправителя запрос -> UNCONFIRMED
+     * - если получатель уже добавил в ответ -> CONFIRMED у обоих
+     */
     public void addFriend(long userId, long friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
+        // если у друга уже есть этот пользователь
+        if (friend.getFriends().containsKey(userId)) {
+            user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
+            friend.getFriends().put(userId, FriendshipStatus.CONFIRMED);
+        } else {
+            user.getFriends().put(friendId, FriendshipStatus.UNCONFIRMED);
+        }
     }
 
+    /**
+     * Удаление из друзей:
+     * - удаляем запись у обоих пользователей
+     */
     public void removeFriend(long userId, long friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
 
-        user.getFriends().remove(friend.getId());
-        friend.getFriends().remove(user.getId());
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
     }
 
+    /**
+     * Получить всех друзей пользователя (включая неподтверждённых)
+     */
     public Collection<User> getFriends(long userId) {
         User user = getById(userId);
-        return user.getFriends().stream()
+        return user.getFriends().keySet().stream()
                 .map(this::getById)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Получить общих друзей (только подтверждённых!)
+     */
     public Collection<User> getCommonFriends(long userId, long otherId) {
         User user1 = getById(userId);
         User user2 = getById(otherId);
 
-        return user1.getFriends().stream()
-                .filter(user2.getFriends()::contains)
+        return user1.getFriends().entrySet().stream()
+                .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED) // только подтверждённые
+                .map(entry -> entry.getKey())
+                .filter(user2.getFriends()::containsKey)
                 .map(this::getById)
                 .collect(Collectors.toList());
     }
@@ -78,6 +101,9 @@ public class UserService {
         }
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             throw new ValidationException("Логин не может быть пустым");
+        }
+        if (user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не может содержать пробелы");
         }
         if (user.getBirthday() != null && user.getBirthday().isAfter(java.time.LocalDate.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем");
