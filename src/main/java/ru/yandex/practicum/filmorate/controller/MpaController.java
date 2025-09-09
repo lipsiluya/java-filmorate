@@ -1,27 +1,33 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
-import java.util.Collection;
+import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/mpa")
 public class MpaController {
-    private final MpaStorage mpaStorage;
+    MpaService mpaService;
 
-    public MpaController(MpaStorage mpaStorage) {
-        this.mpaStorage = mpaStorage;
+    public MpaController(MpaService mpaService) {
+        this.mpaService = mpaService;
     }
 
+
     @GetMapping
-    public Collection<Mpa> getAll() {
-        return mpaStorage.getAll();
+    public List<Mpa> findAll() {
+        log.info("запущен метод findAll в MpaController");
+        return mpaService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Mpa getById(@PathVariable int id) {
-        return mpaStorage.getById(id);
+    @ResponseBody
+    public Mpa findMpaById(@PathVariable int id) {
+        log.info("запущен метод findMpaById (id = {}) в MpaController", id);
+        return mpaService.findMpaById(id);
     }
 }

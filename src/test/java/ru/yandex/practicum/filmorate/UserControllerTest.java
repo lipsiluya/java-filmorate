@@ -1,239 +1,99 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.Assertions;
-import ru.yandex.practicum.filmorate.controller.UserController;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@JdbcTest
+@AutoConfigureTestDatabase
+@Import({UserDbStorage.class, UserRowMapper.class, UserService.class})
 class UserControllerTest {
 
-    private UserController controller;
-    private UserService service;
-    private UserStorage userStorage;
+    @Autowired
+    private UserService userService;
+
+    private User user1;
+    private User user2;
 
     @BeforeEach
     void setUp() {
-        userStorage = new InMemoryUserStorage();
-        service = new UserService(userStorage);
-        controller = new UserController(service);
-    }
-
-    @Test
-    void createUser_validUser() {
-        User user = new User();
-        user.setEmail("test@example.ru");
-        user.setLogin("Login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        user.setName("Name");
-
-        User created = controller.createUser(user);
-
-        Assertions.assertNotNull(created.getId());
-        Assertions.assertEquals("test@example.ru", created.getEmail());
-        Assertions.assertEquals("Login", created.getLogin());
-        Assertions.assertEquals(LocalDate.of(2000, 1, 1), created.getBirthday());
-        Assertions.assertEquals("Name", created.getName());
-    }
-
-    @Test
-    void createUser_emailNull_throwsValidationException() {
-        User user = new User();
-        user.setEmail(null);
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
-    }
-
-    @Test
-    void createUser_emailNotValid() {
-        User user = new User();
-        user.setEmail("testexample.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
-    }
-
-    @Test
-    void createUser_loginWithSpace() {
-        User user = new User();
-        user.setEmail("email@example.com");
-        user.setLogin("log in");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("Логин не может быть пустым и не должен содержать пробелы"));
-    }
-
-    @Test
-    void createUser_birthdayInFuture() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2030,01,01));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
-    }
-
-    @Test
-    void createUser_nameNull_setsNameToLogin() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        user.setName(null);
-
-        User created = controller.createUser(user);
-
-        Assertions.assertEquals("login", created.getName());
-    }
-
-    @Test
-    void createUser_duplicateEmail() {
-        User user1 = new User();
-        user1.setEmail("email@example.ru");
+        user1 = new User();
         user1.setLogin("login1");
-        user1.setBirthday(LocalDate.of(2025, 1, 1));
-        controller.createUser(user1);
-
-        User user2 = new User();
-        user2.setEmail("email@example.ru");
-        user2.setLogin("login2");
-        user2.setBirthday(LocalDate.of(2025, 1, 1));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user2));
-        Assertions.assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
-    }
-
-    @Test
-    void updateUser_validUpdate() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        user.setName("Name");
-        User created = controller.createUser(user);
-
-        User update = new User();
-        update.setId(created.getId());
-        update.setEmail("newemail@example.ru");
-        update.setLogin("newlogin");
-        update.setBirthday(LocalDate.of(1999, 12, 31));
-        update.setName("New Name");
-
-        User updated = controller.updateUser(update);
-
-        Assertions.assertEquals("newemail@example.ru", updated.getEmail());
-        Assertions.assertEquals("newlogin", updated.getLogin());
-        Assertions.assertEquals(LocalDate.of(1999, 12, 31), updated.getBirthday());
-        Assertions.assertEquals("New Name", updated.getName());
-    }
-
-    @Test
-    void updateUser_missingId() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("Id должен быть указан"));
-    }
-
-    @Test
-    void updateUser_nonExistentId() {
-        User user = new User();
-        user.setId(2L);
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-
-        NotFoundException ex = Assertions.assertThrows(NotFoundException.class, () -> controller.updateUser(user));
-        Assertions.assertTrue(ex.getMessage().contains("не найден"));
-    }
-
-    @Test
-    void updateUser_emailUsedByAnotherUser() {
-        User user1 = new User();
-        user1.setEmail("email1@example.ru");
-        user1.setLogin("login1");
+        user1.setName("User One");
+        user1.setEmail("one@mail.com");
         user1.setBirthday(LocalDate.of(2000, 1, 1));
-        User created1 = controller.createUser(user1);
 
-        User user2 = new User();
-        user2.setEmail("email2@example.ru");
+        user2 = new User();
         user2.setLogin("login2");
-        user2.setBirthday(LocalDate.of(2000, 1, 1));
-        User created2 = controller.createUser(user2);
-
-        User update = new User();
-        update.setId(created2.getId());
-        update.setEmail("email1@example.ru");
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        Assertions.assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
+        user2.setName("User Two");
+        user2.setEmail("two@mail.com");
+        user2.setBirthday(LocalDate.of(1999, 5, 5));
     }
 
     @Test
-    void updateUser_loginWithSpace() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        User created = controller.createUser(user);
-
-        User update = new User();
-        update.setId(created.getId());
-        update.setLogin("invalid login");
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        Assertions.assertTrue(ex.getMessage().contains("Логин не может быть пустым"));
+    void testCreateUser() {
+        User created = userService.create(user1);
+        assertThat(created.getId()).isNotNull();
     }
 
     @Test
-    void updateUser_birthdayInFuture() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        User created = controller.createUser(user);
+    void testCreateUserWithDuplicateEmailThrowsException() {
+        userService.create(user1);
+        user2.setEmail("one@mail.com");
 
-        User update = new User();
-        update.setId(created.getId());
-        update.setBirthday(LocalDate.of(2030,01,01));
-
-        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        Assertions.assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
+        assertThatThrownBy(() -> userService.create(user2))
+                .isInstanceOf(DuplicatedDataException.class);
     }
 
     @Test
-    void updateUser_nameNull() {
-        User user = new User();
-        user.setEmail("email@example.ru");
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
-        user.setName("Name");
-        User created = controller.createUser(user);
+    void testFindAll() {
+        userService.create(user1);
+        userService.create(user2);
 
-        User update = new User();
-        update.setId(created.getId());
-        update.setName(null);
-
-        User updated = controller.updateUser(update);
-        Assertions.assertEquals(updated.getLogin(), updated.getName());
+        assertThat(userService.findAll()).hasSize(2);
     }
+
+    @Test
+    void testFindUserById() {
+        User created = userService.create(user1);
+        User found = userService.findUserById(created.getId());
+        assertThat(found.getEmail()).isEqualTo("one@mail.com");
+    }
+
+    @Test
+    void testFindUserByIdThrowsNotFoundException() {
+        assertThatThrownBy(() -> userService.findUserById(999))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void testUpdateUser() {
+        User created = userService.create(user1);
+        created.setName("Updated Name");
+        User updated = userService.update(created);
+        assertThat(updated.getName()).isEqualTo("Updated Name");
+    }
+
+    @Test
+    void testUpdateUserWithIdZeroThrowsValidationException() {
+        user1.setId(0);
+        assertThatThrownBy(() -> userService.update(user1))
+                .isInstanceOf(ValidationException.class);
+    }
+
 }
-

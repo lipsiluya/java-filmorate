@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.converters;
+/*package ru.yandex.practicum.filmorate.converters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -12,4 +12,4 @@ public class DurationSecondsSerializer extends JsonSerializer<Duration> {
     public void serialize(Duration value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeNumber(value.getSeconds());
     }
-}
+}*/

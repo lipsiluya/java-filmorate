@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.converters;
+/*package ru.yandex.practicum.filmorate.converters;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,3 +14,4 @@ public class DurationSecondsDeserializer extends JsonDeserializer<Duration> {
         return Duration.ofSeconds(seconds);
     }
 }
+ */

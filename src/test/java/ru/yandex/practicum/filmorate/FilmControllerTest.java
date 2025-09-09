@@ -1,193 +1,156 @@
 package ru.yandex.practicum.filmorate;
 
-import ru.yandex.practicum.filmorate.controller.FilmController;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.storage.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.storage.mappers.MpaRowMapper;
+import ru.yandex.practicum.filmorate.storage.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@JdbcTest
+@AutoConfigureTestDatabase
+@Import({FilmDbStorage.class, FilmRowMapper.class, FilmService.class,
+        UserDbStorage.class, UserRowMapper.class, UserService.class,
+        MpaDbStorage.class, MpaRowMapper.class,
+        GenreDbStorage.class, GenreRowMapper.class})
 class FilmControllerTest {
 
-    private FilmController controller;
-    private FilmService service;
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+    @Autowired
+    private FilmService filmService;
+
+    @Autowired
+    private UserService userService;
+
+    private Film film1;
+    private Film film2;
+    private User user1;
 
     @BeforeEach
     void setUp() {
-        filmStorage = new InMemoryFilmStorage();
-        userStorage = new InMemoryUserStorage();
-        service = new FilmService(filmStorage, userStorage);
-        controller = new FilmController(service);
+        film1 = new Film();
+        film1.setName("Film One");
+        film1.setDescription("Description One");
+        film1.setReleaseDate(LocalDate.of(2000, 1, 1));
+        film1.setDuration(120);
+        film1.setMpa(new Mpa(1, "G"));
+
+        film2 = new Film();
+        film2.setName("Film Two");
+        film2.setDescription("Description Two");
+        film2.setReleaseDate(LocalDate.of(2005, 5, 5));
+        film2.setDuration(90);
+        film2.setMpa(new Mpa(2, "PG"));
+
+        user1 = new User();
+        user1.setLogin("login1");
+        user1.setName("User One");
+        user1.setEmail("one@mail.com");
+        user1.setBirthday(LocalDate.of(1990, 1, 1));
+        userService.create(user1);
     }
 
     @Test
-    void createFilm_withEarliestReleaseDate() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        film.setDuration(Duration.ofMinutes(90));
-
-        Film created = controller.create(film);
-        assertNotNull(created.getId());
-        assertEquals(LocalDate.of(1895, 12, 28), created.getReleaseDate());
+    void testCreateFilm() {
+        Film created = filmService.create(film1);
+        assertThat(created.getId()).isNotNull();
     }
 
     @Test
-    void createFilm_withReleaseDateBeforeEarliest() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
-        film.setDuration(Duration.ofMinutes(90));
+    void testCreateFilmWithDuplicateIdThrowsException() {
+        Film created = filmService.create(film1);
+        film2.setId(created.getId());
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.create(film));
-        assertTrue(ex.getMessage().contains("Дата релиза не может быть раньше 28 декабря 1895 года"));
+
+        assertThrows(DuplicatedDataException.class,
+                () -> filmService.create(film2));
     }
 
     @Test
-    void createFilm_withDescription200Chars() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание оп");
-        film.setReleaseDate(LocalDate.now());
-        film.setDuration(Duration.ofMinutes(90));
+    void testFindAllFilms() {
+        filmService.create(film1);
+        filmService.create(film2);
 
-        Film created = controller.create(film);
-        assertEquals(200, created.getDescription().length());
+        assertThat(filmService.findAll()).hasSize(2);
     }
 
     @Test
-    void createFilm_withDescription201Chars() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание опи");
-        film.setReleaseDate(LocalDate.now());
-        film.setDuration(Duration.ofMinutes(90));
-
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.create(film));
-        assertTrue(ex.getMessage().contains("Описание фильма не может быть более 200 символов"));
+    void testFindFilmById() {
+        Film created = filmService.create(film1);
+        Film found = filmService.findFilmById(created.getId());
+        assertThat(found.getName()).isEqualTo("Film One");
     }
 
     @Test
-    void createFilm_withZeroDuration() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.now());
-        film.setDuration(Duration.ZERO);
-
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.create(film));
-        assertTrue(ex.getMessage().contains("Продолжительность фильма должна быть положительным числом"));
+    void testFindFilmByIdThrowsNotFoundException() {
+        assertThatThrownBy(() -> filmService.findFilmById(999))
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    void createFilm_withNegativeDuration() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.now());
-        film.setDuration(Duration.ofSeconds(-10));
-
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.create(film));
-        assertTrue(ex.getMessage().contains("Продолжительность фильма должна быть положительным числом"));
+    void testUpdateFilm() {
+        Film created = filmService.create(film1);
+        created.setName("Updated Film");
+        Film updated = filmService.update(created);
+        assertThat(updated.getName()).isEqualTo("Updated Film");
     }
 
     @Test
-    void updateFilm_withValidData() {
-        // Сначала создаём фильм
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(2025, 1, 1));
-        film.setDuration(Duration.ofMinutes(100));
-        Film created = controller.create(film);
-
-        // Обновляем фильм с граничными значениями
-        Film update = new Film();
-        update.setId(created.getId());
-        update.setName("Обновлённый фильм");
-        update.setDescription("a".repeat(200));
-        update.setReleaseDate(LocalDate.of(1895, 12, 28));
-        update.setDuration(Duration.ofSeconds(1));
-
-        Film updated = controller.update(update);
-        assertEquals("Обновлённый фильм", updated.getName());
-        assertEquals(200, updated.getDescription().length());
-        assertEquals(LocalDate.of(1895, 12, 28), updated.getReleaseDate());
-        assertEquals(Duration.ofSeconds(1), updated.getDuration());
+    void testUpdateFilmWithIdZeroThrowsValidationException() {
+        film1.setId(0);
+        assertThatThrownBy(() -> filmService.update(film1))
+                .isInstanceOf(ValidationException.class);
     }
 
     @Test
-    void updateFilm_withInvalidReleaseDate() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(2025, 1, 1));
-        film.setDuration(Duration.ofMinutes(100));
-        Film created = controller.create(film);
+    void testAddAndDeleteLike() {
+        Film createdFilm = filmService.create(film1);
+        Integer userId = user1.getId();
+        Integer filmId = createdFilm.getId();
 
-        Film update = new Film();
-        update.setId(created.getId());
-        update.setName("Обновлённый фильм");
-        update.setDescription("Описание");
-        update.setReleaseDate(LocalDate.of(1895, 12, 27));
-        update.setDuration(Duration.ofMinutes(100));
+        filmService.addLike(userId, filmId);
+        Film likedFilm = filmService.findFilmById(filmId);
+        assertThat(likedFilm.getLikes()).contains(userId);
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.update(update));
-        assertTrue(ex.getMessage().contains("Дата релиза не может быть раньше 28 декабря 1895 года"));
+        filmService.deleteLike(userId, filmId);
+        Film unlikedFilm = filmService.findFilmById(filmId);
+        assertThat(unlikedFilm.getLikes()).doesNotContain(userId);
     }
 
     @Test
-    void updateFilm_withTooLongDescription() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(2025, 1, 1));
-        film.setDuration(Duration.ofMinutes(100));
-        Film created = controller.create(film);
-
-        Film update = new Film();
-        update.setId(created.getId());
-        update.setName("Обновлённый фильм");
-        update.setDescription("Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание опи");
-        update.setReleaseDate(LocalDate.of(2025, 1, 1));
-        update.setDuration(Duration.ofMinutes(100));
-
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.update(update));
-        assertTrue(ex.getMessage().contains("Описание фильма не может быть более 200 символов"));
+    void testGetTopFilmsValidation() {
+        assertThrows(ValidationException.class,
+                () -> filmService.getTopFilm(0));
     }
 
     @Test
-    void updateFilm_withZeroDuration() {
-        Film film = new Film();
-        film.setName("Фильм");
-        film.setDescription("Описание");
-        film.setReleaseDate(LocalDate.of(2025, 1, 1));
-        film.setDuration(Duration.ofMinutes(100));
-        Film created = controller.create(film);
+    void testGetTopFilms() {
+        filmService.create(film1);
+        filmService.create(film2);
 
-        Film update = new Film();
-        update.setId(created.getId());
-        update.setName("Обновлённый фильм");
-        update.setDescription("Описание");
-        update.setReleaseDate(LocalDate.of(2025, 1, 1));
-        update.setDuration(Duration.ZERO);
-
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.update(update));
-        assertTrue(ex.getMessage().contains("Продолжительность фильма должна быть положительным числом"));
+        List<Film> topFilms = filmService.getTopFilm(2);
+        assertThat(topFilms).hasSize(2);
     }
 }
-

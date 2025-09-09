@@ -1,27 +1,32 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.service.GenreService;
 
-import java.util.Collection;
+import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/genres")
 public class GenreController {
-    private final GenreStorage genreStorage;
+    GenreService genreService;
 
-    public GenreController(GenreStorage genreStorage) {
-        this.genreStorage = genreStorage;
+    public GenreController(GenreService genreService) {
+        this.genreService = genreService;
     }
 
     @GetMapping
-    public Collection<Genre> getAll() {
-        return genreStorage.getAll();
+    public List<Genre> findAll() {
+        log.info("запущен метод findAll в GenreController");
+        return genreService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Genre getById(@PathVariable int id) {
-        return genreStorage.getById(id);
+    @ResponseBody
+    public Genre findGenreById(@PathVariable int id) {
+        log.info("запущен метод findGenreById (id = {}) в GenreController", id);
+        return genreService.findGenreById(id);
     }
 }
