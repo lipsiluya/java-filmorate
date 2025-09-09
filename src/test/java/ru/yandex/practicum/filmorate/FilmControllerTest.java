@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.filmorate;
 
 import ru.yandex.practicum.filmorate.controller.FilmController;
 

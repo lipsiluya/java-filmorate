@@ -4,11 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.converters.*;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import ru.yandex.practicum.filmorate.converters.DurationSecondsDeserializer;
+import ru.yandex.practicum.filmorate.converters.DurationSecondsSerializer;
 
 /**
  * Film.

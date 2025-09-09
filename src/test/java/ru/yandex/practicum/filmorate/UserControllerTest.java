@@ -1,5 +1,6 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.Assertions;
 import ru.yandex.practicum.filmorate.controller.UserController;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,6 @@ import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
 
@@ -38,11 +37,11 @@ class UserControllerTest {
 
         User created = controller.createUser(user);
 
-        assertNotNull(created.getId());
-        assertEquals("test@example.ru", created.getEmail());
-        assertEquals("Login", created.getLogin());
-        assertEquals(LocalDate.of(2000, 1, 1), created.getBirthday());
-        assertEquals("Name", created.getName());
+        Assertions.assertNotNull(created.getId());
+        Assertions.assertEquals("test@example.ru", created.getEmail());
+        Assertions.assertEquals("Login", created.getLogin());
+        Assertions.assertEquals(LocalDate.of(2000, 1, 1), created.getBirthday());
+        Assertions.assertEquals("Name", created.getName());
     }
 
     @Test
@@ -52,8 +51,8 @@ class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.createUser(user));
-        assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
     }
 
     @Test
@@ -63,8 +62,8 @@ class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.createUser(user));
-        assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("E-mail должен быть указан"));
     }
 
     @Test
@@ -74,8 +73,8 @@ class UserControllerTest {
         user.setLogin("log in");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.createUser(user));
-        assertTrue(ex.getMessage().contains("Логин не может быть пустым и не должен содержать пробелы"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("Логин не может быть пустым и не должен содержать пробелы"));
     }
 
     @Test
@@ -85,8 +84,8 @@ class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(2030,01,01));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.createUser(user));
-        assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
     }
 
     @Test
@@ -99,7 +98,7 @@ class UserControllerTest {
 
         User created = controller.createUser(user);
 
-        assertEquals("login", created.getName());
+        Assertions.assertEquals("login", created.getName());
     }
 
     @Test
@@ -115,8 +114,8 @@ class UserControllerTest {
         user2.setLogin("login2");
         user2.setBirthday(LocalDate.of(2025, 1, 1));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.createUser(user2));
-        assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.createUser(user2));
+        Assertions.assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
     }
 
     @Test
@@ -137,10 +136,10 @@ class UserControllerTest {
 
         User updated = controller.updateUser(update);
 
-        assertEquals("newemail@example.ru", updated.getEmail());
-        assertEquals("newlogin", updated.getLogin());
-        assertEquals(LocalDate.of(1999, 12, 31), updated.getBirthday());
-        assertEquals("New Name", updated.getName());
+        Assertions.assertEquals("newemail@example.ru", updated.getEmail());
+        Assertions.assertEquals("newlogin", updated.getLogin());
+        Assertions.assertEquals(LocalDate.of(1999, 12, 31), updated.getBirthday());
+        Assertions.assertEquals("New Name", updated.getName());
     }
 
     @Test
@@ -150,8 +149,8 @@ class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.updateUser(user));
-        assertTrue(ex.getMessage().contains("Id должен быть указан"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("Id должен быть указан"));
     }
 
     @Test
@@ -162,8 +161,8 @@ class UserControllerTest {
         user.setLogin("login");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> controller.updateUser(user));
-        assertTrue(ex.getMessage().contains("не найден"));
+        NotFoundException ex = Assertions.assertThrows(NotFoundException.class, () -> controller.updateUser(user));
+        Assertions.assertTrue(ex.getMessage().contains("не найден"));
     }
 
     @Test
@@ -184,8 +183,8 @@ class UserControllerTest {
         update.setId(created2.getId());
         update.setEmail("email1@example.ru");
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
+        Assertions.assertTrue(ex.getMessage().contains("Этот E-mail уже используется"));
     }
 
     @Test
@@ -200,8 +199,8 @@ class UserControllerTest {
         update.setId(created.getId());
         update.setLogin("invalid login");
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        assertTrue(ex.getMessage().contains("Логин не может быть пустым"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
+        Assertions.assertTrue(ex.getMessage().contains("Логин не может быть пустым"));
     }
 
     @Test
@@ -216,8 +215,8 @@ class UserControllerTest {
         update.setId(created.getId());
         update.setBirthday(LocalDate.of(2030,01,01));
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> controller.updateUser(update));
-        assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
+        ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(update));
+        Assertions.assertTrue(ex.getMessage().contains("Дата рождения не может быть в будущем"));
     }
 
     @Test
@@ -234,7 +233,7 @@ class UserControllerTest {
         update.setName(null);
 
         User updated = controller.updateUser(update);
-        assertEquals(updated.getLogin(), updated.getName());
+        Assertions.assertEquals(updated.getLogin(), updated.getName());
     }
 }
 
