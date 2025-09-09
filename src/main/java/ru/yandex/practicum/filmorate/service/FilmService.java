@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import jakarta.validation.ValidationException;
@@ -70,6 +71,16 @@ public class FilmService {
         }
         if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность должна быть положительной");
+        }
+
+        // ✅ Проверяем, что рейтинг указан
+        if (film.getMpaRating() == null) {
+            throw new ValidationException("У фильма должен быть указан рейтинг MPA");
+        }
+
+        // ✅ Проверяем жанры (чтобы не был пустым список)
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            throw new ValidationException("У фильма должен быть хотя бы один жанр");
         }
     }
 }

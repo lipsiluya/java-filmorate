@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +41,10 @@ class FilmControllerTests {
         validFilm.setDescription("A film by Christopher Nolan");
         validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
         validFilm.setDuration(148);
+
+        // Новые обязательные поля
+        validFilm.setGenres(Set.of("Action", "Thriller"));
+        validFilm.setMpaRating(MpaRating.PG_13);
 
         filmStorage.getAll().clear();
     }

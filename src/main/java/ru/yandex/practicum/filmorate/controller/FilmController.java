@@ -32,6 +32,7 @@ public class FilmController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@Valid @RequestBody Film film) {
+        // жанры и рейтинг проверяются в FilmService
         return filmService.add(film);
     }
 
@@ -48,14 +49,14 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable @Positive long id,
                         @PathVariable @Positive long userId) {
-        userService.getById(userId); // проверка существования пользователя
+        userService.getById(userId); // проверяем, что пользователь существует
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable @Positive long id,
                            @PathVariable @Positive long userId) {
-        userService.getById(userId); // проверка существования пользователя
+        userService.getById(userId); // проверяем, что пользователь существует
         filmService.removeLike(id, userId);
     }
 
