@@ -1,9 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
 public enum MpaRating {
-    G,       // нет возрастных ограничений
-    PG,      // детям рекомендуется с родителями
-    PG_13,   // детям до 13 просмотр не желателен
-    R,       // до 17 лет только с взрослым
-    NC_17    // до 18 просмотр запрещён
+    G(1),
+    PG(2),
+    PG_13(3),
+    R(4),
+    NC_17(5);
+
+    private final int id;
+
+    MpaRating(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public static MpaRating fromId(long id) {
+        for (MpaRating rating : values()) {
+            if (rating.getId() == id) {
+                return rating;
+            }
+        }
+        throw new IllegalArgumentException("Нет MPA рейтинга с id: " + id);
+    }
 }

@@ -1,86 +1,54 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
-import jakarta.validation.ValidationException;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
 
-    private final InMemoryFilmStorage storage;
-    private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
+    private final InMemoryFilmStorage filmStorage;
 
-    public Collection<Film> getAll() {
-        return storage.getAll();
+    public FilmService(InMemoryFilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
-    public Film add(Film film) {
-        validate(film);
-        return storage.add(film);
+    public Film addFilm(Film film) {
+        return filmStorage.add(film);
     }
 
-    public Film update(Film film) {
-        validate(film);
-        return storage.update(film);
+    public Film updateFilm(Film film) {
+        if (film.getId() == null) {
+            throw new NoSuchElementException("Фильм не найден id=null");
+        }
+        return filmStorage.update(film);
     }
 
-    public Film getById(long id) {
-        return storage.getById(id);
+    public List<Film> getAllFilms() {
+        return List.copyOf(filmStorage.getAll());
     }
 
-    public void addLike(long filmId, long userId) {
-        Film film = getById(filmId);
+    public Film getFilm(Long id) {
+        return filmStorage.getById(id);
+    }
+
+    public void addLike(Long filmId, Long userId) {
+        Film film = getFilm(filmId);
         film.getLikes().add(userId);
     }
 
-    public void removeLike(long filmId, long userId) {
-        Film film = getById(filmId);
+    public void removeLike(Long filmId, Long userId) {
+        Film film = getFilm(filmId);
         film.getLikes().remove(userId);
     }
 
-    public Collection<Film> getPopular(int count) {
-        return storage.getAll().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
+    public List<Film> getMostPopular(int count) {
+        return filmStorage.getAll().stream()
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .toList();
-    }
-
-    private void validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-        if (film.getReleaseDate() == null) {
-            throw new ValidationException("Дата релиза не может быть пустой");
-        }
-        if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
-            throw new ValidationException("Дата релиза не может быть раньше 28.12.1895");
-        }
-        if (film.getReleaseDate().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата релиза не может быть в будущем");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность должна быть положительной");
-        }
-
-        // ✅ Проверяем, что рейтинг указан
-        if (film.getMpaRating() == null) {
-            throw new ValidationException("У фильма должен быть указан рейтинг MPA");
-        }
-
-        // ✅ Проверяем жанры (чтобы не был пустым список)
-        if (film.getGenres() == null || film.getGenres().isEmpty()) {
-            throw new ValidationException("У фильма должен быть хотя бы один жанр");
-        }
     }
 }

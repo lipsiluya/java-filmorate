@@ -10,11 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,24 +36,24 @@ class FilmControllerTests {
 
     @BeforeEach
     void setUp() {
-        validFilm = new Film();
-        validFilm.setName("Inception");
-        validFilm.setDescription("A film by Christopher Nolan");
-        validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
-        validFilm.setDuration(148);
+        // Очищаем хранилище перед каждым тестом
+        filmStorage.clear();
 
-        // Новые обязательные поля
-        validFilm.setGenres(Set.of("Action", "Thriller"));
-        validFilm.setMpaRating(MpaRating.PG_13);
-
-        filmStorage.getAll().clear();
+        validFilm = new Film(
+                null,
+                "Inception",
+                "A film by Christopher Nolan",
+                LocalDate.of(2010, 7, 16),
+                148,
+                new Mpa((long) MpaRating.PG_13.getId(), null) // создаём объект Mpa
+        );
     }
 
     @Test
     void shouldReturnEmptyFilmListInitially() throws Exception {
         mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(content().json("[]")); // теперь будет пустой список
     }
 
     @Test
@@ -63,16 +63,24 @@ class FilmControllerTests {
                         .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value("Inception"));
+                .andExpect(jsonPath("$.name").value("Inception"))
+                .andExpect(jsonPath("$.mpaId").value(MpaRating.PG_13.getId()));
     }
 
     @Test
     void shouldReturnValidationErrorForEmptyName() throws Exception {
-        validFilm.setName("");
+        Film invalidFilm = new Film(
+                null,
+                "",
+                validFilm.getDescription(),
+                validFilm.getReleaseDate(),
+                validFilm.getDuration(),
+                validFilm.getMpa()
+        );
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validFilm)))
+                        .content(objectMapper.writeValueAsString(invalidFilm)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.name").value("Название фильма не может быть пустым"));
     }
@@ -86,12 +94,22 @@ class FilmControllerTests {
                 .andReturn().getResponse().getContentAsString();
 
         Film createdFilm = objectMapper.readValue(response, Film.class);
-        createdFilm.setName("Updated Title");
+
+        // Обновляем только нужные поля, оставляя Mpa
+        Film updatedFilm = new Film(
+                createdFilm.getId(),
+                "Updated Title",
+                createdFilm.getDescription(),
+                createdFilm.getReleaseDate(),
+                createdFilm.getDuration(),
+                createdFilm.getMpa()
+        );
 
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createdFilm)))
+                        .content(objectMapper.writeValueAsString(updatedFilm)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Title"));
+                .andExpect(jsonPath("$.name").value("Updated Title"))
+                .andExpect(jsonPath("$.mpaId").value(MpaRating.PG_13.getId()));
     }
 }

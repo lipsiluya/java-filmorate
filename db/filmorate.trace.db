@@ -1,0 +1,108 @@
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:09:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+SELECT * FROM films [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+INSERT INTO films(name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?) [42104-214]
+2025-09-08 23:10:25 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILMS" not found (this database is empty); SQL statement:
+SELECT * FROM films [42104-214]
+2025-09-08 23:13:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:13:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:13:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:14:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:14:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:14:32 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:33:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:35:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-08 23:41:21 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:07:45 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:10:06 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:11:10 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:12:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:16:06 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:20:27 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:21:22 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:23:02 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:24:42 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:28:24 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:29:10 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:31:21 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]
+2025-09-09 00:34:55 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?) [42104-214]

@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,6 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -21,7 +21,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 404 Not Found для NotFoundException
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNotFound(NotFoundException e) {
@@ -29,7 +28,6 @@ public class GlobalExceptionHandler {
         return Map.of("error", e.getMessage());
     }
 
-    // 404 Not Found для NoSuchElementException (из storage)
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNoSuchElement(NoSuchElementException e) {
@@ -37,28 +35,22 @@ public class GlobalExceptionHandler {
         return Map.of("error", e.getMessage());
     }
 
-    // 400 ValidationException
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(ValidationException e) {
-        log.warn("ValidationException: {}", e.getMessage());
-        return Map.of("error", e.getMessage());
+        log.warn("ValidationException: {}", e.getErrors());
+        return e.getErrors();
     }
 
-    // 400 Bean validation errors (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         log.warn("MethodArgumentNotValidException: {}", ex.getMessage());
         return ex.getBindingResult().getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        FieldError::getDefaultMessage
-                ));
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
     }
 
-    // 400 ConstraintViolationException для @PathVariable и @RequestParam
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleConstraintViolation(ConstraintViolationException e) {
@@ -74,11 +66,10 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    // 500 Internal Server Error для всех неожиданных исключений
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> handleOtherExceptions(Exception e) {
         log.error("Unexpected exception: {}", e.getMessage(), e);
-        return Map.of("error", e.getMessage());
+        return Map.of("error", "Internal server error: " + e.getMessage());
     }
 }

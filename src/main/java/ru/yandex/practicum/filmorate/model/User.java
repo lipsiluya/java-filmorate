@@ -1,8 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,19 +13,19 @@ import java.util.Map;
 @AllArgsConstructor
 public class User {
     private Long id;
+    private String email;
+    private String login;
+    private String name;
+    private LocalDate birthday;
 
-    // ✅ Вместо Set<Long> теперь Map<друг, статус>
+    // ключ = id друга, значение = статус дружбы
     private Map<Long, FriendshipStatus> friends = new HashMap<>();
 
-    @Email(message = "Email должен быть корректным")
-    @NotBlank(message = "Email не может быть пустым")
-    private String email;
+    public void addFriend(Long friendId, FriendshipStatus status) {
+        friends.put(friendId, status);
+    }
 
-    @NotBlank(message = "Логин не может быть пустым")
-    private String login;
-
-    private String name;
-
-    @PastOrPresent(message = "Дата рождения не может быть в будущем")
-    private LocalDate birthday;
+    public void removeFriend(Long friendId) {
+        friends.remove(friendId);
+    }
 }
