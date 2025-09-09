@@ -1,6 +1,6 @@
-package ru.yandex.practicum.filmorate.storage;
+//package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.stereotype.Component;
+/*import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -78,4 +78,4 @@ public class InMemoryUserStorage {
         users.clear();
         nextId = 1;
     }
-}
+}*/

@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 
@@ -30,14 +30,14 @@ class FilmControllerTests {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private InMemoryFilmStorage filmStorage;
+    private FilmStorage filmStorage;
 
     private Film validFilm;
 
     @BeforeEach
     void setUp() {
-        // Очищаем хранилище перед каждым тестом
-        filmStorage.clear();
+        // Очищаем базу перед каждым тестом
+        filmStorage.getAll().forEach(film -> filmStorage.delete(film.getId()));
 
         validFilm = new Film(
                 null,
@@ -45,7 +45,7 @@ class FilmControllerTests {
                 "A film by Christopher Nolan",
                 LocalDate.of(2010, 7, 16),
                 148,
-                new Mpa((long) MpaRating.PG_13.getId(), null) // создаём объект Mpa
+                new Mpa((long) MpaRating.PG_13.getId(), null)
         );
     }
 
@@ -53,7 +53,7 @@ class FilmControllerTests {
     void shouldReturnEmptyFilmListInitially() throws Exception {
         mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]")); // теперь будет пустой список
+                .andExpect(content().json("[]"));
     }
 
     @Test
@@ -95,7 +95,6 @@ class FilmControllerTests {
 
         Film createdFilm = objectMapper.readValue(response, Film.class);
 
-        // Обновляем только нужные поля, оставляя Mpa
         Film updatedFilm = new Film(
                 createdFilm.getId(),
                 "Updated Title",

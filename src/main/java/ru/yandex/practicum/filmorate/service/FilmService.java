@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmValidator;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -10,20 +11,19 @@ import java.util.NoSuchElementException;
 @Service
 public class FilmService {
 
-    private final InMemoryFilmStorage filmStorage;
+    private final FilmStorage filmStorage;
 
-    public FilmService(InMemoryFilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
     public Film addFilm(Film film) {
+        FilmValidator.validate(film);
         return filmStorage.add(film);
     }
 
     public Film updateFilm(Film film) {
-        if (film.getId() == null) {
-            throw new NoSuchElementException("Фильм не найден id=null");
-        }
+        FilmValidator.validate(film);
         return filmStorage.update(film);
     }
 

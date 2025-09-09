@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+/*package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -54,4 +54,4 @@ public class InMemoryFilmStorage {
         films.clear();
         nextId = 1;
     }
-}
+}*/

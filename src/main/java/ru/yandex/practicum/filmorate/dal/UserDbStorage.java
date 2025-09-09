@@ -67,21 +67,16 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void addFriend(Long userId, Long friendId, FriendshipStatus status) {
         if (status == null || userId.equals(friendId)) return;
-
-        // Проверка существования пользователей
         if (!exists(userId) || !exists(friendId)) {
             throw new NoSuchElementException("Пользователь не найден");
         }
 
-        // Удаляем старую запись
         String deleteSql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
         jdbc.update(deleteSql, userId, friendId);
 
-        // Вставляем новую запись
         String insertSql = "INSERT INTO friends(user_id, friend_id, status) VALUES (?, ?, ?)";
         jdbc.update(insertSql, userId, friendId, status.name());
 
-        // Если подтверждённая дружба — обратная запись
         if (status == FriendshipStatus.CONFIRMED) {
             jdbc.update(deleteSql, friendId, userId);
             jdbc.update(insertSql, friendId, userId, status.name());
@@ -92,6 +87,37 @@ public class UserDbStorage implements UserStorage {
     public void removeFriend(Long userId, Long friendId) {
         jdbc.update("DELETE FROM friends WHERE user_id = ? AND friend_id = ?", userId, friendId);
     }
+
+    // === Новые методы ===
+
+    public Set<User> getFriends(Long userId) {
+        if (!exists(userId)) {
+            throw new NoSuchElementException("Пользователь не найден id=" + userId);
+        }
+
+        String sql = "SELECT u.* FROM users u " +
+                "JOIN friends f ON u.id = f.friend_id " +
+                "WHERE f.user_id = ? AND f.status = ?";
+        List<User> friends = jdbc.query(sql, mapper, userId, FriendshipStatus.CONFIRMED.name());
+        return new HashSet<>(friends);
+    }
+
+    public Set<User> getCommonFriends(Long userId, Long otherId) {
+        if (!exists(userId) || !exists(otherId)) {
+            throw new NoSuchElementException("Пользователь не найден");
+        }
+
+        String sql = "SELECT u.* FROM users u " +
+                "JOIN friends f1 ON u.id = f1.friend_id " +
+                "JOIN friends f2 ON u.id = f2.friend_id " +
+                "WHERE f1.user_id = ? AND f2.user_id = ? " +
+                "AND f1.status = ? AND f2.status = ?";
+        List<User> commonFriends = jdbc.query(sql, mapper, userId, otherId,
+                FriendshipStatus.CONFIRMED.name(), FriendshipStatus.CONFIRMED.name());
+        return new HashSet<>(commonFriends);
+    }
+
+    // === Вспомогательные методы ===
 
     private void loadFriends(User user) {
         String sql = "SELECT friend_id, status FROM friends WHERE user_id = ?";
