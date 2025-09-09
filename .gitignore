@@ -11,3 +11,4 @@ target/
 # Java / Spring
 *.class
 *.jar.DS_Store
+.DS_Store
