@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserValidator;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -19,38 +18,69 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> getAllUsers() {
-        return userStorage.getAll();
+    public List<User> getAllUsers() {
+        return userStorage.getAllUsers();
     }
 
     public User addUser(User user) {
-        UserValidator.validate(user);
-        return userStorage.add(user);
+        validateUser(user);
+        return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
-        UserValidator.validate(user);
-        return userStorage.update(user);
+        validateUser(user);
+        return userStorage.updateUser(user);
     }
 
     public User getUser(Long id) {
-        return userStorage.getById(id);
+        return userStorage.getUser(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
     public void addFriend(Long userId, Long friendId) {
-        // добавляем дружбу с подтверждённым статусом
-        userStorage.addFriend(userId, friendId, FriendshipStatus.CONFIRMED);
+        // Проверяем, что пользователи существуют
+        getUser(userId);
+        getUser(friendId);
+
+        userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
+        // Проверяем, что пользователи существуют
+        getUser(userId);
+        getUser(friendId);
+
         userStorage.removeFriend(userId, friendId);
     }
 
-    public Set<User> getFriends(Long userId) {
+    public List<User> getFriends(Long userId) {
+        getUser(userId); // Проверяем существование пользователя
         return userStorage.getFriends(userId);
     }
 
-    public Set<User> getCommonFriends(Long userId, Long otherId) {
+    public List<User> getCommonFriends(Long userId, Long otherId) {
+        getUser(userId);
+        getUser(otherId);
+
         return userStorage.getCommonFriends(userId, otherId);
+    }
+
+    private void validateUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Email должен быть корректным и содержать @");
+        }
+
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            throw new ValidationException("Login не может быть пустым и содержать пробелы");
+        }
+
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения не может быть в будущем");
+        }
+
+        // Если имя не указано, используем логин
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }

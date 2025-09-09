@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
+@Entity
+@Table(name = "mpa")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Mpa {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
 
-    public Mpa(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+    @Column(nullable = false, unique = true)
+    private String name;
 }

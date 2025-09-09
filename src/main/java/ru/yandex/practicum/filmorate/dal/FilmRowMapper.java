@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+/*package ru.yandex.practicum.filmorate.dal;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -26,4 +26,4 @@ public class FilmRowMapper implements RowMapper<Film> {
 
         return film;
     }
-}
+}*/

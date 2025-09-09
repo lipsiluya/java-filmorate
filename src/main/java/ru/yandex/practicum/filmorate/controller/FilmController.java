@@ -26,6 +26,11 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        return filmService.getFilm(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@RequestBody Film film) {
@@ -39,8 +44,24 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getMostPopular(count);
+    }
+
     private void validateFilm(Film film) {
         Map<String, String> errors = new HashMap<>();
+
         if (film.getName() == null || film.getName().isBlank()) {
             errors.put("name", "Название фильма не может быть пустым");
         }
@@ -50,9 +71,10 @@ public class FilmController {
         if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             errors.put("releaseDate", "Неверная дата релиза фильма");
         }
-        if (film.getMpaId() == null) {
+        if (film.getMpa() == null || film.getMpa().getId() == null) {
             errors.put("mpaId", "MPA рейтинг обязателен");
         }
+
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }

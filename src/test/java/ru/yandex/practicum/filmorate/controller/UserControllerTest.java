@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -37,24 +36,47 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        user1 = new User(1L, "user1@test.com", "user1", "User One", LocalDate.of(1990, 1, 1), null);
-        user2 = new User(2L, "user2@test.com", "user2", "User Two", LocalDate.of(1992, 2, 2), null);
+        user1 = new User();
+        user1.setId(1L);
+        user1.setEmail("user1@test.com");
+        user1.setLogin("user1");
+        user1.setName("User One");
+        user1.setBirthday(LocalDate.of(1990, 1, 1));
+
+        user2 = new User();
+        user2.setId(2L);
+        user2.setEmail("user2@test.com");
+        user2.setLogin("user2");
+        user2.setName("User Two");
+        user2.setBirthday(LocalDate.of(1992, 2, 2));
     }
 
     @Test
-    void shouldAddUser() throws Exception {
+    void getAllUsers_ShouldReturnListOfUsers() throws Exception {
+        when(userService.getAllUsers()).thenReturn(List.of(user1, user2));
+
+        mockMvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2));
+    }
+
+    @Test
+    void addUser_WithValidData_ShouldReturnCreated() throws Exception {
         when(userService.addUser(any(User.class))).thenReturn(user1);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user1)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(user1.getId()))
-                .andExpect(jsonPath("$.login").value(user1.getLogin()));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("user1@test.com"))
+                .andExpect(jsonPath("$.login").value("user1"));
     }
 
     @Test
-    void shouldUpdateUser() throws Exception {
+    void updateUser_WithValidData_ShouldReturnOk() throws Exception {
         user1.setName("Updated Name");
         when(userService.updateUser(any(User.class))).thenReturn(user1);
 
@@ -66,41 +88,52 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldGetAllUsers() throws Exception {
-        when(userService.getAllUsers()).thenReturn(List.of(user1, user2));
+    void getUser_WithValidId_ShouldReturnUser() throws Exception {
+        when(userService.getUser(1L)).thenReturn(user1);
 
-        mockMvc.perform(get("/users"))
+        mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.login").value("user1"));
     }
 
     @Test
-    void shouldHandleFriendshipStatus() throws Exception {
-        // Настраиваем сервис, чтобы не выбрасывал исключения
-        doNothing().when(userService).addFriend(user1.getId(), user2.getId());
+    void addFriend_WithValidIds_ShouldReturnOk() throws Exception {
+        doNothing().when(userService).addFriend(1L, 2L);
 
-        mockMvc.perform(put("/users/{id}/friends/{friendId}", user1.getId(), user2.getId()))
+        mockMvc.perform(put("/users/1/friends/2"))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).addFriend(user1.getId(), user2.getId());
+        verify(userService, times(1)).addFriend(1L, 2L);
     }
 
     @Test
-    void shouldRemoveFriend() throws Exception {
-        doNothing().when(userService).removeFriend(user1.getId(), user2.getId());
+    void removeFriend_WithValidIds_ShouldReturnNoContent() throws Exception {
+        doNothing().when(userService).removeFriend(1L, 2L);
 
-        mockMvc.perform(delete("/users/{id}/friends/{friendId}", user1.getId(), user2.getId()))
+        mockMvc.perform(delete("/users/1/friends/2"))
                 .andExpect(status().isNoContent());
 
-        verify(userService, times(1)).removeFriend(user1.getId(), user2.getId());
+        verify(userService, times(1)).removeFriend(1L, 2L);
     }
 
     @Test
-    void shouldGetUserById() throws Exception {
-        when(userService.getUser(user1.getId())).thenReturn(user1);
+    void getFriends_WithValidId_ShouldReturnFriendsList() throws Exception {
+        when(userService.getFriends(1L)).thenReturn(List.of(user2));
 
-        mockMvc.perform(get("/users/{id}", user1.getId()))
+        mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user1.getId()));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(2));
+    }
+
+    @Test
+    void getCommonFriends_WithValidIds_ShouldReturnCommonFriends() throws Exception {
+        when(userService.getCommonFriends(1L, 3L)).thenReturn(List.of(user2));
+
+        mockMvc.perform(get("/users/1/friends/common/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(2));
     }
 }

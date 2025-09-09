@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+/*package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -145,4 +145,4 @@ public class UserDbStorage implements UserStorage {
             this.status = status;
         }
     }
-}
+}*/

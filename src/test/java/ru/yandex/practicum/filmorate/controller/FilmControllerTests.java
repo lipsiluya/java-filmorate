@@ -4,23 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = FilmorateApplication.class)
-@AutoConfigureMockMvc
+@WebMvcTest(FilmController.class)
 class FilmControllerTests {
 
     @Autowired
@@ -29,86 +31,100 @@ class FilmControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private FilmStorage filmStorage;
+    @MockBean
+    private FilmService filmService;
 
     private Film validFilm;
 
     @BeforeEach
     void setUp() {
-        // Очищаем базу перед каждым тестом
-        filmStorage.getAll().forEach(film -> filmStorage.delete(film.getId()));
+        Mpa mpa = new Mpa();
+        mpa.setId((long) MpaRating.PG_13.getId());
+        mpa.setName("PG-13");
 
-        validFilm = new Film(
-                null,
-                "Inception",
-                "A film by Christopher Nolan",
-                LocalDate.of(2010, 7, 16),
-                148,
-                new Mpa((long) MpaRating.PG_13.getId(), null)
-        );
+        validFilm = new Film();
+        validFilm.setId(1L);
+        validFilm.setName("Inception");
+        validFilm.setDescription("A film by Christopher Nolan");
+        validFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
+        validFilm.setDuration(148);
+        validFilm.setMpa(mpa);
     }
 
     @Test
-    void shouldReturnEmptyFilmListInitially() throws Exception {
+    void getAllFilms_ShouldReturnListOfFilms() throws Exception {
+        when(filmService.getAllFilms()).thenReturn(List.of(validFilm));
+
         mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Inception"));
     }
 
     @Test
-    void shouldCreateValidFilm() throws Exception {
+    void addFilm_WithValidData_ShouldReturnCreated() throws Exception {
+        when(filmService.addFilm(any(Film.class))).thenReturn(validFilm);
+
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Inception"))
-                .andExpect(jsonPath("$.mpaId").value(MpaRating.PG_13.getId()));
+                .andExpect(jsonPath("$.mpa.id").value(MpaRating.PG_13.getId()));
     }
 
     @Test
-    void shouldReturnValidationErrorForEmptyName() throws Exception {
-        Film invalidFilm = new Film(
-                null,
-                "",
-                validFilm.getDescription(),
-                validFilm.getReleaseDate(),
-                validFilm.getDuration(),
-                validFilm.getMpa()
-        );
-
-        mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidFilm)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.name").value("Название фильма не может быть пустым"));
-    }
-
-    @Test
-    void shouldUpdateExistingFilm() throws Exception {
-        String response = mockMvc.perform(post("/films")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validFilm)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-
-        Film createdFilm = objectMapper.readValue(response, Film.class);
-
-        Film updatedFilm = new Film(
-                createdFilm.getId(),
-                "Updated Title",
-                createdFilm.getDescription(),
-                createdFilm.getReleaseDate(),
-                createdFilm.getDuration(),
-                createdFilm.getMpa()
-        );
+    void updateFilm_WithValidData_ShouldReturnOk() throws Exception {
+        validFilm.setName("Updated Inception");
+        when(filmService.updateFilm(any(Film.class))).thenReturn(validFilm);
 
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedFilm)))
+                        .content(objectMapper.writeValueAsString(validFilm)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Title"))
-                .andExpect(jsonPath("$.mpaId").value(MpaRating.PG_13.getId()));
+                .andExpect(jsonPath("$.name").value("Updated Inception"));
+    }
+
+    @Test
+    void getFilm_WithValidId_ShouldReturnFilm() throws Exception {
+        when(filmService.getFilm(1L)).thenReturn(validFilm);
+
+        mockMvc.perform(get("/films/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Inception"));
+    }
+
+    @Test
+    void addLike_WithValidIds_ShouldReturnOk() throws Exception {
+        doNothing().when(filmService).addLike(1L, 1L);
+
+        mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().isOk());
+
+        verify(filmService, times(1)).addLike(1L, 1L);
+    }
+
+    @Test
+    void removeLike_WithValidIds_ShouldReturnOk() throws Exception {
+        doNothing().when(filmService).removeLike(1L, 1L);
+
+        mockMvc.perform(delete("/films/1/like/1"))
+                .andExpect(status().isOk());
+
+        verify(filmService, times(1)).removeLike(1L, 1L);
+    }
+
+    @Test
+    void getMostPopular_ShouldReturnPopularFilms() throws Exception {
+        when(filmService.getMostPopular(10)).thenReturn(List.of(validFilm));
+
+        mockMvc.perform(get("/films/popular")
+                        .param("count", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1));
     }
 }

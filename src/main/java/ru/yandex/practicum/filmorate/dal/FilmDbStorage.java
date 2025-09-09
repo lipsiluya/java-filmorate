@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal;
+/*package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -69,4 +69,4 @@ public class FilmDbStorage implements FilmStorage {
     public void delete(Long id) {
         jdbc.update(DELETE_SQL, id);
     }
-}
+}*/
