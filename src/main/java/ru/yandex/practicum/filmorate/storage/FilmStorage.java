@@ -9,4 +9,4 @@ public interface FilmStorage {
     Film getById(Long id);
     Collection<Film> getAll();
     void delete(Long id);
-}
+}//а
