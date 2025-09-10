@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -79,13 +80,27 @@ public class GenreDbStorage extends BaseStorage<Genre> implements GenreStorage {
     @Override
     public void saveFilmGenres(Film film) {
         log.info("запущен метод saveFilmGenres в DB");
-        if (!film.getGenres().isEmpty()) {
-            film.getGenres().stream().distinct().forEach(genre -> {
-                if (genre != null) {
-                    update(INSERT_FILM_GENRE_QUERY, film.getId(), genre.getId());
-                }
-            });
+
+        if (film.getGenres().isEmpty()) {
+            return;
         }
+
+        // оставляем только уникальные жанры
+        List<Genre> genres = film.getGenres().stream()
+                .filter(g -> g != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // пакетная вставка
+        jdbc.batchUpdate(
+                INSERT_FILM_GENRE_QUERY,
+                genres,
+                genres.size(),
+                (ps, genre) -> {
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, genre.getId());
+                }
+        );
     }
 
     @Override
