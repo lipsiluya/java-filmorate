@@ -1,18 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
-
 import lombok.Data;
+
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-public class Film {
+public class User {
+
     Integer id;
+    String login;
     String name;
-    String description;
-    Integer duration;
-    LocalDate releaseDate;
+    String email;
+    LocalDate birthday;
+    Set<Integer> friends = new HashSet<>();
     Set<Integer> likes = new HashSet<>();
-    List<Genre> genres = new ArrayList<>();
-    Mpa mpa;
 }
