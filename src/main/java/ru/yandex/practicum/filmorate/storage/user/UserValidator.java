@@ -18,7 +18,7 @@ public class UserValidator {
     }
 
 
-    void validateEmail(String email) {
+    private void validateEmail(String email) {
         log.info("валидация почты");
 
         if (email == null || email.isBlank()) {
@@ -32,7 +32,7 @@ public class UserValidator {
         }
     }
 
-    void validateLogin(String login) {
+    private void validateLogin(String login) {
         log.info("валидация логина");
         if (login == null || login.isBlank() || login.contains(" ")) {
             log.error("логин {} не введен или содержит пробелы", login);
@@ -40,7 +40,7 @@ public class UserValidator {
         }
     }
 
-    void validateBirthday(LocalDate birthday) {
+    private void validateBirthday(LocalDate birthday) {
         log.info("валидация даты рождения");
         if (birthday == null) {
             throw new ValidationException("дата рождения не указана");
@@ -53,7 +53,7 @@ public class UserValidator {
         }
     }
 
-    void validateName(User user) {
+    private void validateName(User user) {
         log.info("валидация имени");
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

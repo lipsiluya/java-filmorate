@@ -30,32 +30,22 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Optional<Film> update(Film newFilm) {
-        // проверяем необходимые условия
-        Film oldFilm = films.get(newFilm.getId());
-        if (films.containsKey(newFilm.getId())) {
-            // если фильм найден и все условия соблюдены, обновляем его содержимое
-            if (newFilm.getName() != null) {
-                validator.validateName(newFilm.getName());
-                oldFilm.setName(newFilm.getName());
-                log.info("изменено название фильма");
-            }
-            if (newFilm.getDuration() != 0) {
-                validator.validateDuration(newFilm.getDuration());
-                oldFilm.setDuration(newFilm.getDuration());
-                log.info("изменена длительность фильма");
-            }
-            if (newFilm.getDescription() != null) {
-                validator.validateDescription(newFilm.getDescription());
-                oldFilm.setDescription(newFilm.getDescription());
-                log.info("изменено описание фильма");
-            }
-            if (newFilm.getReleaseDate() != null) {
-                validator.validateReleaseDate(newFilm.getReleaseDate());
-                oldFilm.setReleaseDate(newFilm.getReleaseDate());
-                log.info("изменена дата релиза фильма");
-            }
-
+        if (!films.containsKey(newFilm.getId())) {
+            return Optional.empty();
         }
+
+        // проверяем весь фильм целиком
+        validator.validate(newFilm);
+
+        Film oldFilm = films.get(newFilm.getId());
+
+        oldFilm.setName(newFilm.getName());
+        oldFilm.setDuration(newFilm.getDuration());
+        oldFilm.setDescription(newFilm.getDescription());
+        oldFilm.setReleaseDate(newFilm.getReleaseDate());
+
+        log.info("фильм обновлён: {}", oldFilm.getId());
+
         return Optional.of(oldFilm);
     }
 

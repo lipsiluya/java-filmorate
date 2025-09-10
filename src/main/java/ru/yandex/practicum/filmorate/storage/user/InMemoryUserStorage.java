@@ -33,44 +33,32 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     public Optional<User> update(User newUser) {
+        if (!users.containsKey(newUser.getId())) {
+            return Optional.empty();
+        }
+
+        // проверяем нового пользователя целиком
+        validator.validate(newUser);
 
         User oldUser = users.get(newUser.getId());
-        if (users.containsKey(newUser.getId())) {
 
-            // если пользователь найден и все условия соблюдены, обновляем его содержимое
-            if (newUser.getName() != null) {
-                validator.validateName(newUser);
-                oldUser.setName(newUser.getName());
-                log.info("изменено имя пользователя");
-            }
-            if (newUser.getLogin() != null) {
-                validator.validateLogin(newUser.getLogin());
-                oldUser.setLogin(newUser.getLogin());
-                log.info("изменен логин пользователя");
-            }
-            if (newUser.getEmail() != null) {
-                validator.validateEmail(newUser.getEmail());
-                oldUser.setEmail(newUser.getEmail());
-                log.info("изменена почта пользователя");
-            }
-            if (newUser.getBirthday() != null) {
-                validator.validateBirthday(newUser.getBirthday());
-                oldUser.setBirthday(newUser.getBirthday());
-                log.info("изменена дата рождения пользователя");
-            }
+        oldUser.setName(newUser.getName());
+        oldUser.setLogin(newUser.getLogin());
+        oldUser.setEmail(newUser.getEmail());
+        oldUser.setBirthday(newUser.getBirthday());
 
-            if (newUser.getFriends() != null) {
-                oldUser.setFriends(newUser.getFriends());
-                log.info("обновлены друзья пользователя");
-            }
-
-            if (newUser.getLikes() != null) {
-                oldUser.setLikes(newUser.getLikes());
-                log.info("обновлены лайки пользователя");
-            }
-
+        if (newUser.getFriends() != null) {
+            oldUser.setFriends(newUser.getFriends());
+            log.info("обновлены друзья пользователя");
         }
-        return Optional.ofNullable(oldUser);
+
+        if (newUser.getLikes() != null) {
+            oldUser.setLikes(newUser.getLikes());
+            log.info("обновлены лайки пользователя");
+        }
+
+        log.info("пользователь обновлён: {}", oldUser.getId());
+        return Optional.of(oldUser);
     }
 
     @Override

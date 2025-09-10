@@ -21,14 +21,14 @@ public class FilmValidator {
     }
 
 
-    void validateName(String name) {
+    private void validateName(String name) {
         if (name == null || name.isBlank()) {
             log.error("название фильма не введено");
             throw new ValidationException("Название фильма должно быть указано");
         }
     }
 
-    void validateDescription(String description) {
+    private void validateDescription(String description) {
         if (description != null) {
             if (description.length() > 200) {
                 log.error("размер описания фильма превышает допустимый размер");
@@ -37,7 +37,7 @@ public class FilmValidator {
         }
     }
 
-    void validateReleaseDate(LocalDate releaseDate) {
+    private void validateReleaseDate(LocalDate releaseDate) {
         if (releaseDate == null) {
             log.error("не указана дата релиза");
             throw new ValidationException("Дата релиза не указана");
@@ -49,7 +49,7 @@ public class FilmValidator {
         }
     }
 
-    void validateDuration(long duration) {
+    private void validateDuration(long duration) {
         if (duration < 1) {
             log.error("введена неверная длительность фильма");
             throw new ValidationException("Длительность фильма не может быть отрицательной");
